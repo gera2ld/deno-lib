@@ -1,3 +1,6 @@
+/**
+ * Note that Deno Deploy does not support fs APIs, please don't import this module
+ */
 import { resolve } from "https://deno.land/std/path/mod.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
