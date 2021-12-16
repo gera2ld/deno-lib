@@ -5,7 +5,7 @@ import { BASE_URL } from "./github.ts";
 
 export class GitHubGistStorage implements IStorage {
   constructor(
-    public repo: string,
+    private repo: string,
     private user: string,
     private accessToken: string,
   ) {

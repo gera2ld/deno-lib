@@ -6,7 +6,7 @@ import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
 export class LocalFileStorage implements IStorage {
-  constructor(public repo: string) {}
+  constructor(private repo: string) {}
 
   async getFile({ path }: { path: string }) {
     const p = resolve(this.repo, path);

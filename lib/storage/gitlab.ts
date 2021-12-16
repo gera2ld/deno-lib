@@ -5,7 +5,7 @@ const BASE_URL = "https://gitlab.com/api/v4";
 
 export class GitLabStorage implements IStorage {
   constructor(
-    public repo: string,
+    private repo: string,
     private accessToken: string,
     private defaultBranch?: string,
   ) {

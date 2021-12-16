@@ -6,7 +6,7 @@ export const BASE_URL = "https://api.github.com";
 
 export class GitHubStorage implements IStorage {
   constructor(
-    public repo: string,
+    private repo: string,
     private user: string,
     private accessToken: string,
   ) {
