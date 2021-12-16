@@ -2,7 +2,7 @@ import { decode, encode } from "https://deno.land/std/encoding/base64.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
-const BASE_URL = "https://api.github.com";
+export const BASE_URL = "https://api.github.com";
 
 export class GitHubStorage implements IStorage {
   constructor(
