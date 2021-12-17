@@ -1,7 +1,8 @@
 /**
  * Note that Deno Deploy does not support fs APIs, please don't import this module
  */
-import { resolve } from "https://deno.land/std/path/mod.ts";
+import { resolve } from "../deps/path.ts";
+import { ensureFile } from "../deps/fs.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
@@ -23,6 +24,7 @@ export class LocalFileStorage implements IStorage {
     { path, source }: { path: string; source: string },
   ) {
     const p = resolve(this.repo, path);
+    await ensureFile(p);
     await Deno.writeFile(p, new TextEncoder().encode(source));
     return { path };
   }

@@ -1,4 +1,4 @@
-import { decode, encode } from "https://deno.land/std/encoding/base64.ts";
+import { decode, encode } from "../deps/encoding.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 

@@ -1,7 +1,7 @@
 /**
  * Note that Deno Deploy does not support fs APIs, please don't import this module
  */
-import { ensureFile } from "https://deno.land/std@0.117.0/fs/mod.ts";
+import { ensureFile } from "../deps/fs.ts";
 import { Adapter, openDatabase } from "./base.ts";
 
 export class JSONFileAdapter<T> implements Adapter<T> {
