@@ -3,10 +3,18 @@ import { GitHubGistStorage } from "./github-gist.ts";
 import { GitLabStorage } from "./gitlab.ts";
 import type { StorageConstructor } from "../types.ts";
 
-export const storageServices: { [key: string]: StorageConstructor } = {
+const gitServices = {
   github: GitHubStorage,
   githubGist: GitHubGistStorage,
   gitlab: GitLabStorage,
+};
+
+type StorageServices = typeof gitServices & {
+  [key: string]: StorageConstructor;
+};
+
+export const storageServices: StorageServices = {
+  ...gitServices,
 };
 
 export function loadFromEnv(type: string) {
