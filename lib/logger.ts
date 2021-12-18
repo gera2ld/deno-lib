@@ -1,8 +1,23 @@
-import {
-  ConsoleTransport,
-  Houston,
-} from "https://x.nest.land/Houston@1.0.8/mod.ts";
+import * as log from "./deps/log.ts";
+import { dayjs } from "./dayjs.ts";
 
-export const logger = new Houston([
-  new ConsoleTransport(),
-]);
+const LOGLEVEL = (Deno.env.get("LOGLEVEL") ?? "INFO") as log.LevelName;
+
+await log.setup({
+  handlers: {
+    console: new log.handlers.PureConsoleHandler(LOGLEVEL, {
+      formatter: ({ datetime, levelName, msg }) => {
+        const time = dayjs(datetime).format("YYYY-MM-DD HH:mm:ss");
+        return `[${time}] ${levelName} ${msg}`;
+      },
+    }),
+  },
+  loggers: {
+    default: {
+      level: LOGLEVEL,
+      handlers: ["console"],
+    },
+  },
+});
+
+export const logger = log.getLogger();
