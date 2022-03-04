@@ -12,7 +12,19 @@ export class Database<T> {
 
   constructor(private defaults: T, private adapter: Adapter<T>) {
     this.data = { ...defaults };
-    this.dump = debounce(() => adapter.write(this.data), 200);
+    this.dump = debounce(() => this.dumpSafe(), 200);
+  }
+
+  dumpOnce() {
+    return this.adapter.write(this.data);
+  }
+
+  async dumpSafe() {
+    try {
+      await this.dumpOnce();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   async read() {
