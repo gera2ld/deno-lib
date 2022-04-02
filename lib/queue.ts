@@ -1,4 +1,4 @@
-import { defer, IDeferred } from './util.ts';
+import { defer, IDeferred } from "./util.ts";
 
 export class Queue<T> {
   private data: T[] = [];
@@ -34,7 +34,9 @@ export class Queue<T> {
   }
 
   async put(item: T, maxWait = 0) {
-    if (this.size && this.data.length >= this.size) await this.defer(this.putQueue, maxWait);
+    if (this.size && this.data.length >= this.size) {
+      await this.defer(this.putQueue, maxWait);
+    }
     this.data.push(item);
     this.resolve(this.getQueue);
   }
