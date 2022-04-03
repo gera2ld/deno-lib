@@ -15,7 +15,7 @@ export class GitHubGistStorage implements IStorage {
     method = "GET",
   }: {
     method?: string;
-  }, payload?: any) {
+  }, payload?: unknown) {
     const res = await fetch(
       `${BASE_URL}/gists/${this.repo}`,
       {

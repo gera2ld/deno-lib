@@ -23,7 +23,7 @@ export class GitLabStorage implements IStorage {
     method?: string;
     type?: "json" | "text";
     headers?: StringMap;
-  }, payload?: any): Promise<T> {
+  }, payload?: unknown): Promise<T> {
     const res = await fetch(BASE_URL + url, {
       method,
       headers: {
@@ -47,7 +47,7 @@ export class GitLabStorage implements IStorage {
     branch: string;
     method?: string;
     raw?: boolean;
-  }, payload?: any) {
+  }, payload?: unknown) {
     const url = `/projects/${encodeURIComponent(this.repo)}/repository/files/${
       encodeURIComponent(path)
     }${raw ? "/raw" : ""}?ref=${encodeURIComponent(branch)}`;

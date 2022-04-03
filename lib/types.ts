@@ -13,14 +13,14 @@ export interface IStorage {
     branch?: string;
     message?: string;
     source: string;
-  }): Promise<any>;
+  }): Promise<unknown>;
   updateFile(
     arg: {
       path: string;
       branch?: string;
       update: string | ((source: string) => string);
     },
-  ): Promise<any>;
+  ): Promise<unknown>;
 }
 
 export interface StorageConstructor {

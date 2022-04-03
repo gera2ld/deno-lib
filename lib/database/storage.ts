@@ -13,8 +13,8 @@ export class StorageAdapter<T> implements Adapter<T> {
     }
   }
 
-  write(obj: T): Promise<void> {
-    return this.storage.putFile({
+  async write(obj: T): Promise<void> {
+    await this.storage.putFile({
       path: this.path,
       source: JSON.stringify(obj, null, 2),
     });

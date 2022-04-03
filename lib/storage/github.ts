@@ -18,7 +18,7 @@ export class GitHubStorage implements IStorage {
   }: {
     method?: string;
     path: string;
-  }, payload?: any) {
+  }, payload?: unknown) {
     const res = await fetch(
       `${BASE_URL}/repos/${this.repo}/contents/${path}`,
       {
