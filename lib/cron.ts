@@ -1,7 +1,7 @@
 import {
   parseCronExpression,
   TimerBasedCronScheduler,
-} from "https://cdn.skypack.dev/cron-schedule@3.0.4?dts";
+} from "https://cdn.jsdelivr.net/npm/cron-schedule/+esm";
 
 export function schedule(expression: string, callback: () => void) {
   const cron = parseCronExpression(expression);

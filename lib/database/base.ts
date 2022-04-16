@@ -1,4 +1,4 @@
-import { debounce } from "https://cdn.skypack.dev/lodash-es";
+import { debounce } from "https://cdn.jsdelivr.net/npm/lodash-es/+esm";
 
 export interface Adapter<T> {
   read(): Promise<T | null>;
