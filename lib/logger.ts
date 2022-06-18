@@ -1,11 +1,27 @@
-import * as log from "./deps/log.ts";
+import {
+  getLogger,
+  handlers as builtInHandlers,
+  LevelName,
+  setup,
+} from "./deps.ts";
 import { dayjs } from "./dayjs.ts";
 
-const LOGLEVEL = (Deno.env.get("LOGLEVEL") ?? "INFO") as log.LevelName;
+class PureConsoleHandler extends builtInHandlers.BaseHandler {
+  log(msg: string): void {
+    console.log(msg);
+  }
+}
 
-await log.setup({
+export const handlers = {
+  ...builtInHandlers,
+  PureConsoleHandler,
+};
+
+const LOGLEVEL = (Deno.env.get("LOGLEVEL") ?? "INFO") as LevelName;
+
+await setup({
   handlers: {
-    console: new log.handlers.PureConsoleHandler(LOGLEVEL, {
+    console: new handlers.PureConsoleHandler(LOGLEVEL, {
       formatter: ({ datetime, levelName, msg }) => {
         const time = dayjs(datetime).format("YYYY-MM-DD HH:mm:ss");
         return `[${time}] ${levelName} ${msg}`;
@@ -20,4 +36,4 @@ await log.setup({
   },
 });
 
-export const logger = log.getLogger();
+export const logger = getLogger();

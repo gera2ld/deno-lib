@@ -1,4 +1,4 @@
-import { encode } from "../deps/encoding.ts";
+import { base64 } from "../deps/encoding.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 import { BASE_URL } from "./github.ts";
@@ -23,7 +23,7 @@ export class GitHubGistStorage implements IStorage {
         headers: {
           Accept: "application/vnd.github.v3+json",
           Authorization: "Basic " +
-            encode(`${this.user}:${this.accessToken}`),
+            base64.encode(`${this.user}:${this.accessToken}`),
         },
         body: method === "GET" ? undefined : JSON.stringify(payload),
       },

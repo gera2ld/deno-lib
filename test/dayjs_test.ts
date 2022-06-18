@@ -1,5 +1,5 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import { dayjs } from "../lib/dayjs.ts";
+import { assertEquals } from "./deps.ts";
 
 Deno.test("dayjs test", () => {
   assertEquals(

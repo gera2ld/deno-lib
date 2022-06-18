@@ -1,4 +1,4 @@
-import { decode, encode } from "../deps/encoding.ts";
+import { base64 } from "../deps/encoding.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
@@ -26,7 +26,7 @@ export class GitHubStorage implements IStorage {
         headers: {
           Accept: "application/vnd.github.v3+json",
           Authorization: "Basic " +
-            encode(`${this.user}:${this.accessToken}`),
+            base64.encode(`${this.user}:${this.accessToken}`),
         },
         body: method === "GET" ? undefined : JSON.stringify(payload),
       },
@@ -47,7 +47,7 @@ export class GitHubStorage implements IStorage {
     });
     if (data.type !== "file") throw data;
     data.source = data.encoding === "base64"
-      ? new TextDecoder().decode(decode(data.content))
+      ? new TextDecoder().decode(base64.decode(data.content))
       : data.content;
     return data;
   }
@@ -77,7 +77,7 @@ export class GitHubStorage implements IStorage {
       sha,
       message,
       branch,
-      content: encode(source),
+      content: base64.encode(source),
     });
     return data;
   }

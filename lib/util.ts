@@ -1,16 +1,17 @@
-export interface IDeferred<T> {
+export interface IDeferred<T, U = unknown> {
   promise: Promise<T>;
   resolve: (res: T) => void;
-  reject: (err: unknown) => void;
+  reject: (err: U) => void;
 }
 
-export function defer<T>(): IDeferred<T> {
-  const deferred: Partial<IDeferred<T>> = {};
-  deferred.promise = new Promise<T>((resolve, reject) => {
-    deferred.resolve = resolve;
-    deferred.reject = reject;
+export function defer<T, U = unknown>(): IDeferred<T, U> {
+  let resolve = (_res: T) => {};
+  let reject = (_err: U) => {};
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
   });
-  return deferred as IDeferred<T>;
+  return { promise, resolve, reject };
 }
 
 export function memoize<T extends unknown[], U>(

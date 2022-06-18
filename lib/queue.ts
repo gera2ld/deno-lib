@@ -6,7 +6,11 @@ export class Queue<T> {
   private getQueue = new Set<IDeferred<void>>();
   private putQueue = new Set<IDeferred<void>>();
 
-  constructor(public size = 0) {}
+  constructor(public maxSize = 0) {}
+
+  get size() {
+    return this.data.length;
+  }
 
   private defer(queue: Set<IDeferred<void>>, maxWait = 0) {
     const deferred = defer<void>();
@@ -34,7 +38,7 @@ export class Queue<T> {
   }
 
   async put(item: T, maxWait = 0) {
-    if (this.size && this.data.length >= this.size) {
+    if (this.maxSize && this.data.length >= this.maxSize) {
       await this.defer(this.putQueue, maxWait);
     }
     this.data.push(item);
