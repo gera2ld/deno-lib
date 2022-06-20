@@ -1,7 +1,9 @@
 import { StringMap } from "./types.ts";
-import { configSync } from "./deps.ts";
+import { config } from "./deps.ts";
 
-configSync({ export: true });
+export function loadEnv() {
+  return config({ export: true });
+}
 
 export function ensureEnv(key: string): string {
   const value = Deno.env.get(key);
