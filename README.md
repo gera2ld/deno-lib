@@ -15,7 +15,10 @@ logger.info("Great!");
 ### Environment Variables
 
 ```ts
-import { ensureEnv, ensureEnvs } from "https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/env.ts";
+import { loadEnv, ensureEnv, ensureEnvs } from "https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/env.ts";
+
+// Load env from .env
+await loadEnv();
 
 const SOME_ENV = ensureEnv('SOME_ENV');
 
@@ -56,4 +59,23 @@ const { ENV1, ENV2 } = ensureEnvs(['ENV1', 'ENV2']);
   // Make some updates and dump
   db.data.update = true;
   db.dump();
+  ```
+
+### IPFS
+
+- Upload files to <https://web3.storage/>:
+
+  ```ts
+  import { uploadFiles, uploadDir } from "https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/ipfs/web3-storage.ts";
+
+  const cid1 = await uploadFiles([file1, file2]);
+
+  const cid2 = await uploadDir(dirname);
+  ```
+
+- There is even a CLI:
+
+  ```bash
+  $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/ipfs/cli.ts upload FILE1 FILE2
+  $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/ipfs/cli.ts uploadDir DIRNAME
   ```
