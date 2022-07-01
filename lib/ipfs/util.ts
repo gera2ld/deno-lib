@@ -17,11 +17,13 @@ export async function createFileItem(
   };
 }
 
-export async function getFilesFromDir(dirname: string) {
+export async function getFilesFromDir(dirname: string, parent = '') {
   const files: FileItem[] = [];
   for await (const entry of Deno.readDir(dirname)) {
     if (entry.isFile) {
-      files.push(await createFileItem(join(dirname, entry.name), entry.name));
+      files.push(await createFileItem(join(dirname, entry.name), join(parent, entry.name)));
+    } else if (entry.isDirectory) {
+      files.push(...await getFilesFromDir(join(dirname, entry.name), join(parent, entry.name)));
     }
   }
   return files;
