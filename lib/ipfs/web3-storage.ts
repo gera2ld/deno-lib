@@ -1,10 +1,7 @@
 import { ensureEnv } from "../env.ts";
 import { requestJson } from "../http.ts";
-import { FileItem, getFilesFromDir, pack } from "./util.ts";
-
-export interface Web3StorageOptions {
-  name?: string;
-}
+import { createFileItem, FileItem, getFilesFromDir, pack } from "./util.ts";
+import { Web3StorageOptions } from "./types.ts";
 
 export async function upload(files: FileItem[], opts?: Web3StorageOptions) {
   const token = ensureEnv("WEB3STORAGE_TOKEN");
@@ -12,7 +9,7 @@ export async function upload(files: FileItem[], opts?: Web3StorageOptions) {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
   };
-  if (opts?.name) headers['X-name'] = opts.name;
+  if (opts?.name) headers["X-name"] = opts.name;
   const { cid } = await requestJson<{ cid: string }>(
     "https://api.web3.storage/car",
     {
@@ -22,6 +19,13 @@ export async function upload(files: FileItem[], opts?: Web3StorageOptions) {
     },
   );
   return cid;
+}
+
+export async function uploadFiles(files: string[], opts?: Web3StorageOptions) {
+  const fileItems = await Promise.all(
+    files.map((filename) => createFileItem(filename)),
+  );
+  return upload(fileItems, opts);
 }
 
 export async function uploadDir(dirname: string, opts?: Web3StorageOptions) {

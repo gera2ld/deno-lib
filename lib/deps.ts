@@ -8,3 +8,5 @@ export { config, configSync } from "https://deno.land/std/dotenv/mod.ts";
 
 export { getLogger, handlers, setup } from "https://deno.land/std/log/mod.ts";
 export type { LevelName } from "https://deno.land/std/log/mod.ts";
+
+export { parse } from "https://deno.land/std/flags/mod.ts";
