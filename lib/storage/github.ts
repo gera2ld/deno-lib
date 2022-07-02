@@ -1,4 +1,4 @@
-import { base64 } from "../deps/encoding.ts";
+import { base64 } from "../deps.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 

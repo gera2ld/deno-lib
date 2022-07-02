@@ -1,6 +1,6 @@
-import dayjs from "https://cdn.jsdelivr.net/npm/dayjs/+esm";
-import utc from "https://cdn.jsdelivr.net/npm/dayjs/plugin/utc/+esm";
-import timezone from "https://cdn.jsdelivr.net/npm/dayjs/plugin/timezone/+esm";
+import dayjs from "https://esm.sh/dayjs";
+import utc from "https://esm.sh/dayjs/plugin/utc";
+import timezone from "https://esm.sh/dayjs/plugin/timezone";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

@@ -1,4 +1,4 @@
-import { debounce } from "https://cdn.jsdelivr.net/npm/lodash-es/+esm";
+import { debounce } from "https://esm.sh/lodash-es";
 
 export interface Adapter<T> {
   read(): Promise<T | null>;
