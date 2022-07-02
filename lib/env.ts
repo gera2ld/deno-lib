@@ -1,5 +1,5 @@
 import { StringMap } from "./types.ts";
-import { config } from "./deps.ts";
+import { config } from "./deps/deno.ts";
 
 export function loadEnv() {
   return config({ export: true });

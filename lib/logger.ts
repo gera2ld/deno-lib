@@ -1,10 +1,10 @@
 import {
+  format,
   getLogger,
   handlers as builtInHandlers,
   LevelName,
   setup,
-} from "./deps.ts";
-import { dayjs } from "./dayjs.ts";
+} from "./deps/deno.ts";
 
 class PureConsoleHandler extends builtInHandlers.BaseHandler {
   log(msg: string): void {
@@ -23,8 +23,8 @@ await setup({
   handlers: {
     console: new handlers.PureConsoleHandler(LOGLEVEL, {
       formatter: ({ datetime, levelName, msg }) => {
-        const time = dayjs(datetime).format("YYYY-MM-DD HH:mm:ss");
-        return `[${time}] ${levelName} ${msg}`;
+        const ts = format(datetime, "yyyy-MM-dd HH:mm:ss");
+        return `[${ts}] ${levelName} ${msg}`;
       },
     }),
   },

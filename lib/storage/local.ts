@@ -1,8 +1,7 @@
 /**
  * Note that Deno Deploy does not support fs APIs, please don't import this module
  */
-import { resolve } from "../deps.ts";
-import { ensureFile } from "../deps.ts";
+import { ensureFile, resolve } from "../deps/deno.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 

@@ -1,4 +1,4 @@
-import { parse } from "../deps.ts";
+import { parse } from "../deps/deno.ts";
 import { uploadDir, uploadFiles } from "./web3-storage.ts";
 import { Web3StorageOptions } from "./types.ts";
 

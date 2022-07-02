@@ -1,6 +1,6 @@
 import { packToBlob } from "https://esm.sh/ipfs-car@0.7.0/pack/blob?no-check";
 import { MemoryBlockStore } from "https://esm.sh/ipfs-car@0.7.0/blockstore/memory?no-check";
-import { basename, join } from "../deps.ts";
+import { basename, join } from "../deps/deno.ts";
 
 export interface FileItem {
   path: string;
