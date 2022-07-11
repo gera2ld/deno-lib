@@ -8,23 +8,24 @@ import { IStorage } from "../types.ts";
 export class LocalFileStorage implements IStorage {
   constructor(private repo: string) {}
 
-  async getFile({ path }: { path: string }) {
+  async getFile({ path, silent = false }: { path: string; silent?: boolean }) {
     const p = resolve(this.repo, path);
     try {
       const content = await Deno.readTextFile(p);
       return content;
     } catch (err) {
-      if (err?.code === "ENOENT") throw { status: 404, data: err };
+      if (err?.code === "ENOENT") {
+        if (silent) return;
+        throw { status: 404, data: err };
+      }
       throw { status: 500, data: err };
     }
   }
 
-  async putFile(
-    { path, source }: { path: string; source: string },
-  ) {
+  async putFile({ path, content }: { path: string; content: string }) {
     const p = resolve(this.repo, path);
     await ensureFile(p);
-    await Deno.writeFile(p, new TextEncoder().encode(source));
+    await Deno.writeFile(p, new TextEncoder().encode(content));
     return { path };
   }
 
@@ -32,12 +33,17 @@ export class LocalFileStorage implements IStorage {
     path: string;
     update: string | ((source: string) => string);
   }) {
-    const data = await this.getFile({ path }).catch((err) => {
-      if (err?.status === 404) return null;
-      throw err;
+    const content = typeof update === "string"
+      ? update
+      : update(await this.getFile({ path, silent: true }) || "");
+    return this.putFile({ path, content });
+  }
+
+  appendFile({ path, content }: { path: string; content: string }) {
+    return this.updateFile({
+      path,
+      update: (source) => source + content,
     });
-    const source = typeof update === "string" ? update : update(data || "");
-    return this.putFile({ path, source });
   }
 
   static loadFromEnv() {

@@ -11,7 +11,7 @@ export class GitHubGistStorage implements IStorage {
   ) {
   }
 
-  async request({
+  private async request({
     method = "GET",
   }: {
     method?: string;
@@ -33,37 +33,42 @@ export class GitHubGistStorage implements IStorage {
     return data;
   }
 
-  async requestUrl(url: string) {
+  private async requestUrl(url: string) {
     const res = await fetch(url);
     return await res.text();
   }
 
-  async getFileByAPI({ path }: { path: string }) {
-    const data = await this.request({});
-    const file = data.files[path];
-    if (!file.truncated) {
-      return file.content;
-    }
-    return this.requestUrl(file.raw_url);
-  }
+  // private async getFileByAPI({ path }: { path: string }) {
+  //   const data = await this.request({});
+  //   const file = data.files[path];
+  //   if (!file.truncated) {
+  //     return file.content;
+  //   }
+  //   return this.requestUrl(file.raw_url);
+  // }
 
-  getFileByUrl({ path }: { path: string }) {
+  private getFileByUrl({ path }: { path: string }) {
     const url =
       `https://gist.githubusercontent.com/${this.user}/${this.repo}/raw/${path}`;
     return this.requestUrl(url);
   }
 
-  getFile({ path }: { path: string }) {
-    return this.getFileByUrl({ path });
+  async getFile({ path, silent = false }: { path: string; silent?: boolean }) {
+    try {
+      return await this.getFileByUrl({ path });
+    } catch (err) {
+      if (err?.status === 404 && silent) return;
+      throw err;
+    }
   }
 
-  putFile({ path, source }: { path: string; source: string }) {
+  putFile({ path, content }: { path: string; content: string }) {
     return this.request({
       method: "PATCH",
     }, {
       files: {
         [path]: {
-          content: source,
+          content,
         },
       },
     });
@@ -73,9 +78,23 @@ export class GitHubGistStorage implements IStorage {
     path: string;
     update: string | ((source: string) => string);
   }) {
-    const data = await this.getFile({ path });
-    const source = typeof update === "string" ? update : update(data);
-    return this.putFile({ path, source });
+    const content = typeof update === "string"
+      ? update
+      : update(await this.getFile({ path, silent: true }) || "");
+    return this.putFile({ path, content });
+  }
+
+  appendFile({
+    path,
+    content,
+  }: {
+    path: string;
+    content: string;
+  }) {
+    return this.updateFile({
+      path,
+      update: (source) => source + content,
+    });
   }
 
   static loadFromEnv() {

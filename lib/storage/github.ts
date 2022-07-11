@@ -12,7 +12,7 @@ export class GitHubStorage implements IStorage {
   ) {
   }
 
-  async request({
+  private async request<T>({
     method = "GET",
     path,
   }: {
@@ -31,30 +31,48 @@ export class GitHubStorage implements IStorage {
         body: method === "GET" ? undefined : JSON.stringify(payload),
       },
     );
-    const data = await res.json();
+    const data = await res.json() as T;
     if (!res.ok) throw { status: res.status, data };
     return data;
   }
 
-  async getInternalFile(
-    { path, branch }: { path: string; branch?: string },
-  ): Promise<{
-    sha: string;
-    source: string;
-  }> {
-    const data = await this.request({
-      path: branch ? `${path}?ref=${branch}` : path,
-    });
+  private async getInternalFile(
+    { path, branch, silent = false }: {
+      path: string;
+      branch?: string;
+      silent?: boolean;
+    },
+  ) {
+    let data: {
+      type: string;
+      encoding: string;
+      content: string;
+      sha: string;
+    };
+    try {
+      data = await this.request({
+        path: branch ? `${path}?ref=${branch}` : path,
+      });
+    } catch (err) {
+      if (err?.status === 404 && silent) return;
+      throw err;
+    }
     if (data.type !== "file") throw data;
-    data.source = data.encoding === "base64"
+    const source = data.encoding === "base64"
       ? new TextDecoder().decode(base64.decode(data.content))
       : data.content;
-    return data;
+    return { sha: data.sha, source };
   }
 
-  async getFile({ path, branch }: { path: string; branch?: string }) {
-    const data = await this.getInternalFile({ path, branch });
-    return data.source;
+  async getFile(
+    { path, branch, silent = false }: {
+      path: string;
+      branch?: string;
+      silent?: boolean;
+    },
+  ) {
+    const data = await this.getInternalFile({ path, branch, silent });
+    return data?.source;
   }
 
   async putFile({
@@ -62,13 +80,13 @@ export class GitHubStorage implements IStorage {
     sha,
     branch,
     message = "update",
-    source,
+    content,
   }: {
     path: string;
     sha?: string;
     branch?: string;
     message?: string;
-    source: string;
+    content: string;
   }) {
     const data = await this.request({
       method: "PUT",
@@ -77,7 +95,7 @@ export class GitHubStorage implements IStorage {
       sha,
       message,
       branch,
-      content: base64.encode(source),
+      content: base64.encode(content),
     });
     return data;
   }
@@ -91,12 +109,27 @@ export class GitHubStorage implements IStorage {
     branch?: string;
     update: string | ((source: string) => string);
   }) {
-    const data = await this.getInternalFile({ path }).catch((err) => {
-      if (err?.status === 404) return { ...err.data, source: "" };
-      throw err;
+    const data = await this.getInternalFile({ path, silent: true });
+    const content = typeof update === "string"
+      ? update
+      : update(data?.source || "");
+    return this.putFile({ path, branch, sha: data?.sha, content });
+  }
+
+  appendFile({
+    path,
+    branch,
+    content,
+  }: {
+    path: string;
+    branch?: string;
+    content: string;
+  }) {
+    return this.updateFile({
+      path,
+      branch,
+      update: (source) => source + content,
     });
-    const source = typeof update === "string" ? update : update(data.source);
-    return this.putFile({ path, branch, sha: data.sha, source });
   }
 
   static loadFromEnv() {

@@ -7,7 +7,7 @@ export class StorageAdapter<T> implements Adapter<T> {
   async read(): Promise<T | null> {
     try {
       const data = await this.storage.getFile({ path: this.path });
-      return JSON.parse(data) as T;
+      return JSON.parse(data || '') as T;
     } catch {
       return null;
     }
@@ -16,7 +16,7 @@ export class StorageAdapter<T> implements Adapter<T> {
   async write(obj: T): Promise<void> {
     await this.storage.putFile({
       path: this.path,
-      source: JSON.stringify(obj, null, 2),
+      content: JSON.stringify(obj, null, 2),
     });
   }
 }

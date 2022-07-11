@@ -1,4 +1,3 @@
-import { StringMap } from "./types.ts";
 import { config } from "./deps/deno.ts";
 
 export function loadEnv() {
@@ -13,8 +12,8 @@ export function ensureEnv(key: string): string {
   return value;
 }
 
-export function ensureEnvs(keys: string[]): StringMap {
-  const env: StringMap = {};
+export function ensureEnvs(keys: string[]) {
+  const env: Record<string, string> = {};
   const missing: string[] = [];
   for (const key of keys) {
     try {

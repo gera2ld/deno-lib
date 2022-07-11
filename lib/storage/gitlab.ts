@@ -1,5 +1,5 @@
 import { ensureEnvs } from "../env.ts";
-import { IStorage, StringMap } from "../types.ts";
+import { IStorage } from "../types.ts";
 
 const BASE_URL = "https://gitlab.com/api/v4";
 
@@ -11,7 +11,7 @@ export class GitLabStorage implements IStorage {
   ) {
   }
 
-  async request<T>({
+  private async request<T>({
     url,
     method = "GET",
     type = "json",
@@ -22,7 +22,7 @@ export class GitLabStorage implements IStorage {
     url: string;
     method?: string;
     type?: "json" | "text";
-    headers?: StringMap;
+    headers?: Record<string, string>;
   }, payload?: unknown): Promise<T> {
     const res = await fetch(BASE_URL + url, {
       method,
@@ -37,7 +37,7 @@ export class GitLabStorage implements IStorage {
     return data;
   }
 
-  async requestFile<T>({
+  private async requestFile<T>({
     path,
     branch,
     method = "GET",
@@ -55,7 +55,7 @@ export class GitLabStorage implements IStorage {
     return data;
   }
 
-  async getDefaultBranch() {
+  private async getDefaultBranch() {
     if (!this.defaultBranch) {
       const branches = await this.request<
         Array<{ name: string; default: boolean }>
@@ -69,22 +69,31 @@ export class GitLabStorage implements IStorage {
   }
 
   async getFile(
-    { path, branch }: { path: string; branch?: string },
+    { path, branch, silent = false }: {
+      path: string;
+      branch?: string;
+      silent?: boolean;
+    },
   ) {
     branch ??= await this.getDefaultBranch();
-    const data = await this.requestFile<string>({ path, branch, raw: true });
-    return data;
+    try {
+      const data = await this.requestFile<string>({ path, branch, raw: true });
+      return data;
+    } catch (err) {
+      if (err?.status === 404 && silent) return;
+      throw err;
+    }
   }
 
   async putFile({
     path,
-    source,
+    content,
     branch,
     message = "update",
     isNew = false,
   }: {
     path: string;
-    source: string;
+    content: string;
     branch?: string;
     message?: string;
     isNew?: boolean;
@@ -97,7 +106,7 @@ export class GitLabStorage implements IStorage {
       }`,
     }, {
       branch,
-      content: source,
+      content,
       commit_message: message,
     });
     return data;
@@ -109,12 +118,25 @@ export class GitLabStorage implements IStorage {
     update: string | ((source: string) => string);
   }) {
     branch ??= await this.getDefaultBranch();
-    const data = await this.getFile({ path, branch }).catch((err) => {
-      if (err?.status === 404) return null;
-      throw err;
+    const data = await this.getFile({ path, branch, silent: true });
+    const content = typeof update === "string" ? update : update(data || "");
+    return this.putFile({ path, content, branch, isNew: data == null });
+  }
+
+  appendFile({
+    path,
+    branch,
+    content,
+  }: {
+    path: string;
+    branch?: string;
+    content: string;
+  }) {
+    return this.updateFile({
+      path,
+      branch,
+      update: (source) => source + content,
     });
-    const source = typeof update === "string" ? update : update(data || "");
-    return this.putFile({ path, source, branch, isNew: data == null });
   }
 
   static loadFromEnv() {

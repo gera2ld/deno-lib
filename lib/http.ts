@@ -10,7 +10,8 @@ export async function requestJson<T = unknown>(
 
 export function buildUrl(
   relUrl: string,
-  { base, query }: { base?: string; query?: Record<string, string | number> } = {},
+  { base, query }: { base?: string; query?: Record<string, string | number> } =
+    {},
 ) {
   const url = new URL(relUrl, base);
   if (query) {

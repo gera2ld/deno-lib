@@ -1,26 +1,22 @@
-export interface StringMap {
-  [key: string]: string;
-}
-
 export interface IStorage {
   getFile(arg: {
     path: string;
-    branch?: string;
-  }): Promise<string>;
+    silent?: boolean;
+  }): Promise<string | undefined>;
   putFile(arg: {
     path: string;
-    sha?: string;
-    branch?: string;
-    message?: string;
-    source: string;
+    content: string;
   }): Promise<unknown>;
   updateFile(
     arg: {
       path: string;
-      branch?: string;
-      update: string | ((source: string) => string);
+      update: string | ((content: string) => string);
     },
   ): Promise<unknown>;
+  appendFile(arg: {
+    path: string;
+    content: string;
+  }): Promise<unknown>;
 }
 
 export interface StorageConstructor {
