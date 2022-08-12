@@ -1,5 +1,5 @@
 import {
-  format,
+  formatTime,
   getLogger,
   handlers as builtInHandlers,
   LevelName,
@@ -23,7 +23,7 @@ await setup({
   handlers: {
     console: new handlers.PureConsoleHandler(LOGLEVEL, {
       formatter: ({ datetime, levelName, msg }) => {
-        const ts = format(datetime, "yyyy-MM-dd HH:mm:ss");
+        const ts = formatTime(datetime, "yyyy-MM-dd HH:mm:ss");
         return `[${ts}] ${levelName} ${msg}`;
       },
     }),
