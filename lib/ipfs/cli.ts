@@ -5,6 +5,7 @@ import { Web3StorageOptions } from "./types.ts";
 async function main() {
   const args = parse(Deno.args);
   const [command, ...rest] = args._.map(String);
+  args.name ||= rest[0].replace(/\/$/, '').split('/').pop();
   if (command === "upload") {
     console.info(await uploadFiles(rest, args as Web3StorageOptions));
     return;
