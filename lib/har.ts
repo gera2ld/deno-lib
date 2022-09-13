@@ -55,8 +55,7 @@ export class HarReplayer {
       return url.replace(/^https?:\/\/[^/]+/, "");
     },
     processResponse: (resp: Response, req: Request) => {
-      const referer = req.headers.get("referer");
-      const origin = referer ? new URL(referer).origin : "*";
+      const origin = req.headers.get("origin") || "*";
       resp.headers.set("access-control-allow-origin", origin);
       resp.headers.set("access-control-allow-credentials", "true");
       resp.headers.set("access-control-allow-headers", "content-type");
