@@ -4,7 +4,7 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/har.ts --harFile path/to/my-file.har
  */
 
-import { base64, parse, serve } from "./deps/deno.ts";
+import { base64, parse, serve, ServeInit } from "./deps/deno.ts";
 
 export interface IKeyValue {
   name: string;
@@ -101,16 +101,18 @@ export class HarReplayer {
     return resp;
   };
 
-  async start(port: number) {
+  async start(options: ServeInit) {
     console.info(`Using HAR file at: ${this.harFile}`);
     await this.loading;
-    await serve(this.handleRequest, { port });
+    await serve(this.handleRequest, options);
   }
 }
 
 if (import.meta.main) {
   const args = parse(Deno.args);
-  const port = +args.port || 3600;
+  const options: ServeInit = {};
+  if (args.hostname) options.hostname = args.hostname;
+  options.port = +args.port || 3600;
   const harFile = args.harFile;
-  new HarReplayer(harFile).start(port);
+  new HarReplayer(harFile).start(options);
 }
