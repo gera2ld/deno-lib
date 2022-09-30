@@ -4,19 +4,21 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/database/sqlite.ts path/to/db.sqlite
  */
 
-import { DB } from "https://deno.land/x/sqlite/mod.ts";
+import { DB, SqliteOptions } from "https://deno.land/x/sqlite/mod.ts";
 import { parse, serve, ServeInit } from "../deps/deno.ts";
 
 const args = parse(Deno.args);
-const options: ServeInit = {};
-if (args.hostname) options.hostname = args.hostname;
-options.port = +args.port || 3601;
+const listenOptions: ServeInit = {};
+if (args.hostname) listenOptions.hostname = args.hostname;
+listenOptions.port = +args.port || 3601;
+const dbOptions: SqliteOptions = {};
+if (args.mode) dbOptions.mode = args.mode;
 const file = args._[0] as string;
 
 async function handleRequest(request: Request) {
   const query = await request.json();
   try {
-    const db = new DB(file);
+    const db = new DB(file, dbOptions);
     const rows = db.query(query.sql, query.params);
     db.close();
     return new Response(JSON.stringify({ result: rows }), {
@@ -30,4 +32,4 @@ async function handleRequest(request: Request) {
   }
 }
 
-serve(handleRequest, options);
+serve(handleRequest, listenOptions);
