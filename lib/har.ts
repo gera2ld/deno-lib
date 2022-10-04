@@ -4,7 +4,7 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/har.ts --harFile path/to/my-file.har
  */
 
- import {
+import {
   base64,
   parse,
   readAll,
@@ -36,6 +36,10 @@ export interface IEntry {
     url: string;
     headers: IKeyValue[];
     queryString: IKeyValue[];
+    postData?: {
+      mimeType: string;
+      text: string;
+    };
   };
   response: IEntryResponse;
 }
@@ -98,8 +102,17 @@ export class HarReplayer {
     const entryMap = new Map<string, IEntry>();
     const data = JSON.parse(await Deno.readTextFile(path));
     data.log.entries.forEach((entry: IEntry) => {
-      const url = this.options.resolveKey(entry.request);
-      entryMap.set(`${entry.request.method}:${url}`, entry);
+      const { request } = entry;
+      const bodyMimeType = request.postData?.mimeType?.split(";")[0];
+      const url = this.options.resolveKey({
+        method: request.method,
+        url: request.url,
+        headers: request.headers,
+        body: ["application/json"].includes(bodyMimeType ?? "")
+          ? request.postData!.text
+          : null,
+      });
+      entryMap.set(`${request.method}:${url}`, entry);
     });
     this.entryMap = entryMap;
   }
