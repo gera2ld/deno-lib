@@ -82,29 +82,38 @@ export class HarReplayer {
     const data = JSON.parse(await Deno.readTextFile(path));
     data.log.entries.forEach((entry: IEntry) => {
       const url = this.options.normalizeUrl(entry.request.url);
-      entryMap.set(url, entry);
+      entryMap.set(`${entry.request.method}:${url}`, entry);
     });
     this.entryMap = entryMap;
   }
 
   handleRequest = (request: Request) => {
     const url = this.options.normalizeUrl(request.url);
-    const entry = this.entryMap.get(url);
-    if (!entry) return new Response(null, { status: 404 });
-    const body = loadResponseContent(entry.response);
-    const headers = entry.response.headers.reduce((prev, pair) => {
-      prev[pair.name] = pair.value;
-      return prev;
-    }, {} as Record<string, string>);
-    let resp = new Response(body, { headers });
-    resp = this.options.processResponse(resp, request) || resp;
-    return resp;
+    const entry = this.entryMap.get(`${request.method}:${url}`);
+    let response: Response;
+    if (request.method === 'OPTIONS') {
+      response = new Response();
+    } else if (!entry) {
+      response = new Response(null, { status: 404 });
+    } else {
+      const body = loadResponseContent(entry.response);
+      const headers = entry.response.headers.reduce((prev, pair) => {
+        prev[pair.name] = pair.value;
+        return prev;
+      }, {} as Record<string, string>);
+      response = new Response(body, { headers });
+    }
+    response = this.options.processResponse(response, request) || response;
+    return response;
   };
 
-  async start(options: ServeInit) {
+  async start(options?: ServeInit) {
     console.info(`Using HAR file at: ${this.harFile}`);
     await this.loading;
-    await serve(this.handleRequest, options);
+    await serve(this.handleRequest, {
+      port: 3600,
+      ...options,
+    });
   }
 }
 
@@ -112,7 +121,7 @@ if (import.meta.main) {
   const args = parse(Deno.args);
   const options: ServeInit = {};
   if (args.hostname) options.hostname = args.hostname;
-  options.port = +args.port || 3600;
+  if (args.port) options.port = +args.port;
   const harFile = args.harFile;
   new HarReplayer(harFile).start(options);
 }
