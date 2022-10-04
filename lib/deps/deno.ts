@@ -14,7 +14,10 @@ export { parse } from "https://deno.land/std/flags/mod.ts";
 export { format as formatTime } from "https://deno.land/std/datetime/mod.ts";
 export * as colors from "https://deno.land/std/fmt/colors.ts";
 
-export { readAll } from "https://deno.land/std/streams/mod.ts";
+export {
+  readAll,
+  readerFromStreamReader,
+} from "https://deno.land/std/streams/mod.ts";
 
 export { serve } from "https://deno.land/std/http/server.ts";
 export type { ServeInit } from "https://deno.land/std/http/server.ts";

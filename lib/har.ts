@@ -4,7 +4,14 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/har.ts --harFile path/to/my-file.har
  */
 
-import { base64, parse, serve, ServeInit } from "./deps/deno.ts";
+ import {
+  base64,
+  parse,
+  readAll,
+  readerFromStreamReader,
+  serve,
+  ServeInit,
+} from "./deps/deno.ts";
 
 export interface IKeyValue {
   name: string;
@@ -34,7 +41,14 @@ export interface IEntry {
 }
 
 export interface HarReplayerOptions {
-  normalizeUrl: (url: string) => string;
+  resolveKey: (
+    request: {
+      method: string;
+      url: string;
+      headers?: IKeyValue[] | null;
+      body?: string | null;
+    },
+  ) => string;
   processResponse: (resp: Response, req: Request) => Response | void;
 }
 
@@ -51,8 +65,11 @@ export class HarReplayer {
   loading: Promise<void>;
 
   static defaultOptions: HarReplayerOptions = {
-    normalizeUrl: (url: string) => {
-      return url.replace(/^https?:\/\/[^/]+/, "");
+    resolveKey: (request) => {
+      return [
+        request.method,
+        request.url.replace(/^https?:\/\/[^/]+/, ""),
+      ].join(":");
     },
     processResponse: (resp: Response, req: Request) => {
       const origin = req.headers.get("origin") || "*";
@@ -81,17 +98,28 @@ export class HarReplayer {
     const entryMap = new Map<string, IEntry>();
     const data = JSON.parse(await Deno.readTextFile(path));
     data.log.entries.forEach((entry: IEntry) => {
-      const url = this.options.normalizeUrl(entry.request.url);
+      const url = this.options.resolveKey(entry.request);
       entryMap.set(`${entry.request.method}:${url}`, entry);
     });
     this.entryMap = entryMap;
   }
 
-  handleRequest = (request: Request) => {
-    const url = this.options.normalizeUrl(request.url);
+  handleRequest = async (request: Request) => {
+    const url = this.options.resolveKey({
+      method: request.method,
+      url: request.url,
+      headers: Array.from(
+        request.headers.entries(),
+        ([name, value]) => ({ name, value }),
+      ),
+      body: request.body &&
+        new TextDecoder().decode(
+          await readAll(readerFromStreamReader(request.body.getReader())),
+        ),
+    });
     const entry = this.entryMap.get(`${request.method}:${url}`);
     let response: Response;
-    if (request.method === 'OPTIONS') {
+    if (request.method === "OPTIONS") {
       response = new Response();
     } else if (!entry) {
       response = new Response(null, { status: 404 });
