@@ -14,22 +14,6 @@ export function defer<T, U = unknown>(): IDeferred<T, U> {
   return { promise, resolve, reject };
 }
 
-export function memoize<T extends unknown[], U>(
-  fn: (...args: T) => U,
-  resolver = (...args: T) => `${args[0]}`,
-) {
-  const cache: { [key: string]: U } = {};
-  return (...args: T): U => {
-    const key = resolver(...args);
-    let result = cache[key];
-    if (!result) {
-      result = fn(...args);
-      cache[key] = result;
-    }
-    return result;
-  };
-}
-
 export function limitConcurrency<T extends unknown[], U>(
   fn: (...args: T) => Promise<U>,
   concurrency: number,

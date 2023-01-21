@@ -25,7 +25,7 @@ export class LocalFileStorage implements IStorage {
   async putFile({ path, content }: { path: string; content: string }) {
     const p = resolve(this.repo, path);
     await ensureFile(p);
-    await Deno.writeFile(p, new TextEncoder().encode(content));
+    await Deno.writeTextFile(p, content);
     return { path };
   }
 
