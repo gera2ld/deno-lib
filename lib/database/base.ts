@@ -1,4 +1,4 @@
-import { debounce } from "https://esm.sh/lodash-es";
+import { debounce } from "../deps/lodash.ts";
 
 export interface Adapter<T> {
   read(): Promise<T | null>;

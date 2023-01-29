@@ -1,23 +1,31 @@
-export { ensureFile } from "https://deno.land/std/fs/mod.ts";
-export { basename, join, resolve } from "https://deno.land/std/path/mod.ts";
+export { ensureFile } from "https://deno.land/std@0.175.0/fs/mod.ts";
+export {
+  basename,
+  join,
+  resolve,
+} from "https://deno.land/std@0.175.0/path/mod.ts";
 
-export * as base64 from "https://deno.land/std/encoding/base64.ts";
-export * as base64url from "https://deno.land/std/encoding/base64url.ts";
+export * as base64 from "https://deno.land/std@0.175.0/encoding/base64.ts";
+export * as base64url from "https://deno.land/std@0.175.0/encoding/base64url.ts";
 
-export { config, configSync } from "https://deno.land/std/dotenv/mod.ts";
+export { load, loadSync } from "https://deno.land/std@0.175.0/dotenv/mod.ts";
 
-export { getLogger, handlers, setup } from "https://deno.land/std/log/mod.ts";
-export type { LevelName } from "https://deno.land/std/log/mod.ts";
+export {
+  getLogger,
+  handlers,
+  setup,
+} from "https://deno.land/std@0.175.0/log/mod.ts";
+export type { LevelName } from "https://deno.land/std@0.175.0/log/mod.ts";
 
-export { parse } from "https://deno.land/std/flags/mod.ts";
+export { parse } from "https://deno.land/std@0.175.0/flags/mod.ts";
 
-export { format as formatTime } from "https://deno.land/std/datetime/mod.ts";
-export * as colors from "https://deno.land/std/fmt/colors.ts";
+export { format as formatTime } from "https://deno.land/std@0.175.0/datetime/mod.ts";
+export * as colors from "https://deno.land/std@0.175.0/fmt/colors.ts";
 
 export {
   readAll,
   readerFromStreamReader,
-} from "https://deno.land/std/streams/mod.ts";
+} from "https://deno.land/std@0.175.0/streams/mod.ts";
 
-export { serve } from "https://deno.land/std/http/server.ts";
-export type { ServeInit } from "https://deno.land/std/http/server.ts";
+export { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+export type { ServeInit } from "https://deno.land/std@0.175.0/http/server.ts";

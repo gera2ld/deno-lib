@@ -1,7 +1,7 @@
 import {
   parseCronExpression,
   TimerBasedCronScheduler,
-} from "https://esm.sh/cron-schedule";
+} from "https://esm.sh/cron-schedule@3.0.6";
 
 export function schedule(expression: string, callback: () => void) {
   const cron = parseCronExpression(expression);

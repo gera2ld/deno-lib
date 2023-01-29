@@ -1,5 +1,5 @@
-import { packToBlob } from "https://esm.sh/ipfs-car@0.8.1/pack/blob";
-import { MemoryBlockStore } from "https://esm.sh/ipfs-car@0.8.1/blockstore/memory";
+import { packToBlob } from "https://esm.sh/ipfs-car@0.9.1/pack/blob";
+import { MemoryBlockStore } from "https://esm.sh/ipfs-car@0.9.1/blockstore/memory";
 import { join, readAll } from "../deps/deno.ts";
 
 export interface FileItem {

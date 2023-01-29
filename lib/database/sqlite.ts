@@ -4,7 +4,7 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/database/sqlite.ts path/to/db.sqlite
  */
 
-import { DB, SqliteOptions } from "https://deno.land/x/sqlite/mod.ts";
+import { DB, SqliteOptions } from "https://deno.land/x/sqlite@v3.7.0/mod.ts";
 import { parse, serve, ServeInit } from "../deps/deno.ts";
 
 const args = parse(Deno.args);

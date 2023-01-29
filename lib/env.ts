@@ -1,7 +1,7 @@
-import { config } from "./deps/deno.ts";
+import { load } from "./deps/deno.ts";
 
 export function loadEnv() {
-  return config({ export: true });
+  return load({ export: true });
 }
 
 export function ensureEnv(key: string): string {
