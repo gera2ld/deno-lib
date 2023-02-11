@@ -1,26 +1,23 @@
-import { parse } from "../deps/deno.ts";
+import { cac } from "../deps/cac.ts";
 import { uploadDir, uploadFiles } from "./web3-storage.ts";
 import { Web3StorageOptions } from "./types.ts";
 
-async function main() {
-  const args = parse(Deno.args);
-  const [command, ...rest] = args._.map(String);
-  args.name ||= rest[0].replace(/\/$/, "").split("/").pop();
-  const opts = args as Web3StorageOptions;
-  if (command === "upload") {
-    console.info(await uploadFiles(rest, opts));
-    return;
-  }
-  if (command === "uploadDir") {
-    console.info(await uploadDir(rest[0], opts));
-    return;
-  }
-  if (command) {
-    throw new Error(`Unknown command: ${command}`);
-  }
-}
+const cli = cac("ipfs-uploader");
 
-main().catch((err) => {
-  console.error(err);
-  Deno.exit(1);
-});
+cli.command("upload [...files]")
+  .option("--name <name>", "Provide a name for the CAR")
+  .option("--isCar", "Upload the only file as a CAR")
+  .action(async (files: string[], options: Web3StorageOptions) => {
+    options.name ||= files[0].split("/").pop();
+    console.info(await uploadFiles(files, options));
+  });
+
+cli.command("uploadDir <dir>")
+  .option("--name <name>", "Provide a name for the CAR")
+  .action(async (dir: string, options: Web3StorageOptions) => {
+    options.name ||= dir.replace(/\/$/, "").split("/").pop();
+    console.info(await uploadDir(dir, options));
+  });
+
+cli.help();
+cli.parse();

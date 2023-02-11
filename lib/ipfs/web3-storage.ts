@@ -5,7 +5,7 @@ import { FileItem, fileToBlob, getFilesFromDir, pack } from "./util.ts";
 import { Web3StorageOptions } from "./types.ts";
 
 export async function uploadCar(car: Blob, opts: Web3StorageOptions) {
-  const token = ensureEnv("WEB3STORAGE_TOKEN");
+  const token = opts.token || ensureEnv("WEB3STORAGE_TOKEN");
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
   };
