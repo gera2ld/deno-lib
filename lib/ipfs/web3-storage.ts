@@ -1,6 +1,6 @@
 import { basename } from "../deps/deno.ts";
 import { ensureEnv } from "../env.ts";
-import { requestJson } from "../http.ts";
+import { requestJson } from "../http/util.ts";
 import { FileItem, fileToBlob, getFilesFromDir, pack } from "./util.ts";
 import { Web3StorageOptions } from "./types.ts";
 

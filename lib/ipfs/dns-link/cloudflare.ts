@@ -1,4 +1,4 @@
-import { requestJson } from "../../http.ts";
+import { requestJson } from "../../http/util.ts";
 import { ensureEnv } from "../../env.ts";
 
 export interface CloudflareConfig {

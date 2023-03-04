@@ -1,4 +1,4 @@
-import { buildUrl } from '../lib/http.ts';
+import { buildUrl } from '../lib/http/util.ts';
 import { assertEquals, assertThrows } from './deps.ts';
 
 Deno.test('buildUrl', () => {
