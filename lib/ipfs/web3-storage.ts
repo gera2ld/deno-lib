@@ -25,22 +25,22 @@ export async function upload(files: FileItem[], opts: Web3StorageOptions) {
   let car: Blob;
   if (opts.isCar) {
     const [file] = files;
-    car = await fileToBlob(file.fullpath, "application/vnd.ipld.car");
+    car = await fileToBlob(file.name, "application/vnd.ipld.car");
   } else {
-    car = await pack(files);
+    ({ car } = await pack(files));
   }
   return uploadCar(car, opts);
 }
 
 export function uploadFiles(files: string[], opts: Web3StorageOptions) {
-  const fileItems = files.map((filename) => ({
-    relpath: basename(filename),
-    fullpath: filename,
+  const fileItems: FileItem[] = files.map((filename) => ({
+    name: basename(filename),
+    path: filename,
   }));
-  if (fileItems.length === 1 && fileItems[0].relpath.endsWith(".car")) {
+  if (fileItems.length === 1 && fileItems[0].name.endsWith(".car")) {
     // Set default values
     opts.isCar ??= true;
-    opts.name = (opts.name || fileItems[0].relpath).replace(/\.car$/, "");
+    opts.name = (opts.name || fileItems[0].name).replace(/\.car$/, "");
   }
   return upload(fileItems, opts);
 }

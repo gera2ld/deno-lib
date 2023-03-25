@@ -1,10 +1,13 @@
-import { packToBlob } from "https://esm.sh/ipfs-car@0.9.1/pack/blob";
-import { MemoryBlockStore } from "https://esm.sh/ipfs-car@0.9.1/blockstore/memory";
+import {
+  CAREncoderStream,
+  createDirectoryEncoderStream,
+} from "https://esm.sh/ipfs-car@1.0.0";
+import type { Block } from "https://esm.sh/@ipld/unixfs@2.1.1";
 import { join, readAll } from "../deps/deno.ts";
 
 export interface FileItem {
-  relpath: string;
-  fullpath: string;
+  name: string;
+  path: string;
 }
 
 export async function getFilesFromDir(dirname: string, parent = "") {
@@ -12,8 +15,8 @@ export async function getFilesFromDir(dirname: string, parent = "") {
   for await (const entry of Deno.readDir(dirname)) {
     if (entry.isFile) {
       files.push({
-        relpath: join(parent, entry.name),
-        fullpath: join(dirname, entry.name),
+        name: join(parent, entry.name),
+        path: join(dirname, entry.name),
       });
     } else if (entry.isDirectory) {
       files.push(
@@ -28,14 +31,43 @@ export async function getFilesFromDir(dirname: string, parent = "") {
 }
 
 export async function pack(input: FileItem[]) {
-  const { car } = await packToBlob({
-    input: await Promise.all(input.map(async ({ relpath, fullpath }) => ({
-      path: relpath,
-      content: (await Deno.open(fullpath)).readable,
-    }))),
-    blockstore: new MemoryBlockStore(),
-  } as any);
-  return car as Blob;
+  const files = await Promise.all(input.map(async ({ name, path }) => {
+    const f = await Deno.open(path);
+    return {
+      name,
+      stream: () => f.readable,
+    };
+  }));
+  const blocks: Block[] = [];
+  await createDirectoryEncoderStream(files)
+    .pipeTo(
+      new WritableStream({
+        write(block) {
+          blocks.push(block);
+        },
+      }),
+    );
+  const rootCID = blocks.at(-1)!.cid;
+  const chunks: Uint8Array[] = [];
+  await new ReadableStream({
+    pull(controller) {
+      if (blocks.length) {
+        controller.enqueue(blocks.shift());
+      } else {
+        controller.close();
+      }
+    },
+  })
+    .pipeThrough(new CAREncoderStream([rootCID]))
+    .pipeTo(
+      new WritableStream({
+        write(chunk) {
+          chunks.push(chunk);
+        },
+      }),
+    );
+  const car = new Blob(chunks);
+  return { cid: rootCID.toString(), car };
 }
 
 export async function fileToBlob(filepath: string, mimeType: string) {
