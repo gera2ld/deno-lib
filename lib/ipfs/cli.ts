@@ -1,7 +1,7 @@
 import { cac } from "../deps/cac.ts";
 import { uploadCarFile, uploadFiles } from "./web3-storage.ts";
 import { Web3StorageOptions } from "./types.ts";
-import { filesFromPaths, listCar, packCar } from "./util.ts";
+import { filesFromPaths, findCnames, listCar, packCar } from "./util.ts";
 
 const cli = cac("ipfs-uploader");
 
@@ -40,6 +40,17 @@ cli.command("listCar <carFile>")
     const car = await Deno.readFile(file);
     const entries = await listCar(car);
     console.info(entries);
+  });
+
+cli.command("findCnames <carFile>")
+  .action(async (file: string) => {
+    const car = await Deno.readFile(file);
+    const values = await findCnames(car);
+    for (const { cid, cnames } of values) {
+      for (const cname of cnames) {
+        console.info(cname, cid);
+      }
+    }
   });
 
 cli.help();

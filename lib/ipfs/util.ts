@@ -146,3 +146,25 @@ export async function listCar(car: Uint8Array) {
   }
   return entries;
 }
+
+export async function findCnames(car: Uint8Array) {
+  const entries = await listCar(car);
+  const pointers = entries.filter((entry) =>
+    entry.name === "CNAME" || entry.name.endsWith(".CNAME")
+  );
+  const decoder = new TextDecoder();
+  const values: { cid: string; cnames: string[] }[] = [];
+  pointers.forEach((pointer) => {
+    const targetPath = pointer.path.slice(0, -6);
+    const target = entries.find((entry) => entry.path === targetPath);
+    if (!target) return;
+    const cnames = decoder.decode(pointer.node as Uint8Array).split("\n").map(
+      (line) => line.trim(),
+    ).filter(Boolean);
+    values.push({
+      cid: target.cid.toString(),
+      cnames,
+    });
+  });
+  return values;
+}
