@@ -11,7 +11,7 @@ import {
   readerFromStreamReader,
   serve,
   ServeInit,
-} from "./deps/deno.ts";
+} from "../deps/deno.ts";
 
 export interface IKeyValue {
   name: string;

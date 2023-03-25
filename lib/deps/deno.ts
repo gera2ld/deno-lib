@@ -1,6 +1,7 @@
 export { ensureFile } from "https://deno.land/std@0.175.0/fs/mod.ts";
 export {
   basename,
+  dirname,
   join,
   resolve,
 } from "https://deno.land/std@0.175.0/path/mod.ts";

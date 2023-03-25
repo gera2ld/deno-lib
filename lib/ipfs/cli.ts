@@ -1,22 +1,45 @@
 import { cac } from "../deps/cac.ts";
-import { uploadDir, uploadFiles } from "./web3-storage.ts";
+import { uploadCarFile, uploadFiles } from "./web3-storage.ts";
 import { Web3StorageOptions } from "./types.ts";
+import { filesFromPaths, listCar, packCar } from "./util.ts";
 
 const cli = cac("ipfs-uploader");
 
-cli.command("upload [...files]")
+cli.command("upload <...paths>")
   .option("--name <name>", "Provide a name for the CAR")
-  .option("--isCar", "Upload the only file as a CAR")
-  .action(async (files: string[], options: Web3StorageOptions) => {
-    options.name ||= files[0].split("/").pop();
-    console.info(await uploadFiles(files, options));
+  .action(async (paths: string[], options: Web3StorageOptions) => {
+    options.name ||= paths[0].split("/").pop();
+    console.info(await uploadFiles(paths, options));
   });
 
-cli.command("uploadDir <dir>")
+cli.command("uploadCar <carFile>")
   .option("--name <name>", "Provide a name for the CAR")
-  .action(async (dir: string, options: Web3StorageOptions) => {
-    options.name ||= dir.replace(/\/$/, "").split("/").pop();
-    console.info(await uploadDir(dir, options));
+  .action(async (file: string, options: Web3StorageOptions) => {
+    options.name ||= file.split("/").pop();
+    console.info(await uploadCarFile(file, options));
+  });
+
+cli.command("packCar <...paths>")
+  .option("-o, --output <name>", "Provide a name for the CAR")
+  .action(async (paths: string[], options: { output: string }) => {
+    const fileItems = await filesFromPaths(paths);
+    const { cid, car } = await packCar(fileItems);
+    let name = options.output || cid;
+    if (!name.endsWith(".car")) name += ".car";
+    car.stream().pipeTo(
+      (await Deno.open(name, {
+        create: true,
+        write: true,
+        truncate: true,
+      })).writable,
+    );
+  });
+
+cli.command("listCar <carFile>")
+  .action(async (file: string) => {
+    const car = await Deno.readFile(file);
+    const entries = await listCar(car);
+    console.info(entries);
   });
 
 cli.help();

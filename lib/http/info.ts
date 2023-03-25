@@ -1,4 +1,4 @@
-import { serve } from "./deps/deno.ts";
+import { serve } from "../deps/deno.ts";
 
 function handleRequest(request: Request) {
   const output = {
