@@ -1,9 +1,11 @@
 import { cac } from "../../deps/cac.ts";
+import { loadEnv } from "../../env.ts";
 import {
   CloudflareConfig,
   updateDNSLink as cfUpdateDNSLink,
 } from "./cloudflare.ts";
 
+await loadEnv();
 const cli = cac("dns-link");
 
 cli.command("cloudflare <ipfsPath> <domain> [name]")
