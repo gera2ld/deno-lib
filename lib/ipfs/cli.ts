@@ -17,7 +17,6 @@ cli.command("upload <...paths>")
 cli.command("uploadCar <carFile>")
   .option("--name <name>", "Provide a name for the CAR")
   .action(async (file: string, options: Web3StorageOptions) => {
-    options.name ||= file.split("/").pop();
     console.info(await uploadCarFile(file, options));
   });
 
