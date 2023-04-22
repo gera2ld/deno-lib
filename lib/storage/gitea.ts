@@ -2,15 +2,12 @@ import { base64 } from "../deps/deno.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
-export const BASE_URL = "https://api.github.com";
-
-export class GitHubStorage implements IStorage {
+export class GiteaStorage implements IStorage {
   constructor(
     private repo: string,
-    private user: string,
     private accessToken: string,
-  ) {
-  }
+    private baseUrl: string,
+  ) {}
 
   private async request<T>({
     method = "GET",
@@ -20,13 +17,13 @@ export class GitHubStorage implements IStorage {
     path: string;
   }, payload?: unknown) {
     const res = await fetch(
-      `${BASE_URL}/repos/${this.repo}/contents/${path}`,
+      `${this.baseUrl}/repos/${this.repo}/contents/${path}`,
       {
         method,
         headers: {
-          Accept: "application/vnd.github.v3+json",
-          Authorization: "Basic " +
-            base64.encode(`${this.user}:${this.accessToken}`),
+          Accept: "application/json",
+          Authorization: `token ${this.accessToken}`,
+          "Content-type": "application/json",
         },
         body: method === "GET" ? undefined : JSON.stringify(payload),
       },
@@ -64,13 +61,15 @@ export class GitHubStorage implements IStorage {
     return { sha: data.sha, source };
   }
 
-  async getFile(
-    { path, branch, silent = false }: {
-      path: string;
-      branch?: string;
-      silent?: boolean;
-    },
-  ) {
+  async getFile({
+    path,
+    branch,
+    silent = false,
+  }: {
+    path: string;
+    branch?: string;
+    silent?: boolean;
+  }) {
     const data = await this.getInternalFile({ path, branch, silent });
     return data?.source;
   }
@@ -90,7 +89,7 @@ export class GitHubStorage implements IStorage {
     content: string;
   }) {
     const data = await this.request({
-      method: "PUT",
+      method: sha ? "PUT" : "POST",
       path,
     }, {
       sha,
@@ -134,7 +133,7 @@ export class GitHubStorage implements IStorage {
   }
 
   static loadFromEnv() {
-    const env = ensureEnvs(["GITHUB_REPO", "GITHUB_USER", "GITHUB_PAT"]);
-    return new GitHubStorage(env.GITHUB_REPO, env.GITHUB_USER, env.GITHUB_PAT);
+    const env = ensureEnvs(["GITEA_REPO", "GITEA_TOKEN", "GITEA_URL"]);
+    return new GiteaStorage(env.GITEA_REPO, env.GITEA_TOKEN, env.GITEA_URL);
   }
 }
