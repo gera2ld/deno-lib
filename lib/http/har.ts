@@ -44,7 +44,10 @@ export interface IEntry {
   response: IEntryResponse;
 }
 
+type MaybePromise<T> = T | Promise<T>;
+
 export interface HarReplayerOptions {
+  handle404: (req: Request) => MaybePromise<Response>;
   resolveKey: (
     request: {
       method: string;
@@ -53,7 +56,10 @@ export interface HarReplayerOptions {
       body?: string | null;
     },
   ) => string;
-  processResponse: (resp: Response, req: Request) => Response | void;
+  processResponse: (
+    resp: Response,
+    req: Request,
+  ) => MaybePromise<Response | void>;
 }
 
 export function loadResponseContent(response: IEntryResponse) {
@@ -69,6 +75,7 @@ export class HarReplayer {
   loading: Promise<void>;
 
   static defaultOptions: HarReplayerOptions = {
+    handle404: () => new Response(null, { status: 404 }),
     resolveKey: (request) => {
       return [
         request.method,
@@ -135,7 +142,7 @@ export class HarReplayer {
     if (request.method === "OPTIONS") {
       response = new Response();
     } else if (!entry) {
-      response = new Response(null, { status: 404 });
+      response = await this.options.handle404(request);
     } else {
       const body = loadResponseContent(entry.response);
       const headers = entry.response.headers.reduce((prev, pair) => {
@@ -144,7 +151,8 @@ export class HarReplayer {
       }, {} as Record<string, string>);
       response = new Response(body, { headers });
     }
-    response = this.options.processResponse(response, request) || response;
+    response = await this.options.processResponse(response, request) ||
+      response;
     return response;
   };
 
