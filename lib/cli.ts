@@ -1,6 +1,9 @@
 export { colors, readAll } from "./deps/deno.ts";
 
-export async function runCommand(command: string | URL, options: Deno.CommandOptions) {
+export async function runCommand(
+  command: string | URL,
+  options: Deno.CommandOptions,
+) {
   const cmd = new Deno.Command(command, options);
   const p = cmd.spawn();
   const status = await p.status;
@@ -8,7 +11,10 @@ export async function runCommand(command: string | URL, options: Deno.CommandOpt
   return p;
 }
 
-export async function evalCommand(command: string | URL, options: Deno.CommandOptions) {
+export async function evalCommand(
+  command: string | URL,
+  options: Deno.CommandOptions,
+) {
   const cmd = new Deno.Command(command, {
     ...options,
     stdout: "piped",
