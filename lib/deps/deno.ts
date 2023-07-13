@@ -10,7 +10,7 @@ export {
 export * as base64 from "https://deno.land/std@0.192.0/encoding/base64.ts";
 export * as base64url from "https://deno.land/std@0.192.0/encoding/base64url.ts";
 
-export { load, loadSync } from "https://deno.land/std@0.192.0/dotenv/mod.ts";
+export { load, loadSync, type LoadOptions } from "https://deno.land/std@0.192.0/dotenv/mod.ts";
 
 export {
   getLogger,

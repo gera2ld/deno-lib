@@ -1,7 +1,10 @@
-import { load } from "./deps/deno.ts";
+import { load, type LoadOptions } from "./deps/deno.ts";
 
-export function loadEnv() {
-  return load({ export: true });
+export function loadEnv(param?: LoadOptions) {
+  return load({
+    export: true,
+    ...param,
+  });
 }
 
 export function ensureEnv(key: string): string {
