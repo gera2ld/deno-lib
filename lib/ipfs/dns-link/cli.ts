@@ -8,17 +8,16 @@ import {
 await loadEnv();
 const cli = cac("dns-link");
 
-cli.command("cloudflare <ipfsPath> <domain> [name]")
+cli.command("cloudflare <ipfsPath> <domain>")
   .option("--token <token>", "The token for calling Cloudflare APIs")
   .action(
     async (
       ipfsPath: string,
       domain: string,
-      name: string,
       options: CloudflareConfig,
     ) => {
-      await cfUpdateDNSLink(domain, name, ipfsPath, options);
-      console.log([name, domain].filter(Boolean).join("."), "->", ipfsPath);
+      await cfUpdateDNSLink(domain, ipfsPath, options);
+      console.log(domain, "->", ipfsPath);
     },
   );
 

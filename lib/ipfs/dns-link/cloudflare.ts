@@ -1,3 +1,4 @@
+import { parse } from "https://esm.sh/tldts";
 import { requestJson } from "../../http/util.ts";
 import { ensureEnv } from "../../env.ts";
 
@@ -29,10 +30,11 @@ function request<T = unknown>(
 }
 
 async function findZone(name: string, config: CloudflareConfig) {
+  const { domain } = parse(name);
   const {
     result: [zone],
   } = await request<{ result: CloudflareDnsZone[] }>(
-    `https://api.cloudflare.com/client/v4/zones?name=${name}`,
+    `https://api.cloudflare.com/client/v4/zones?name=${domain}`,
     config,
   );
   return zone;
@@ -92,14 +94,11 @@ async function updateRecord(
 }
 
 export async function updateDNSLink(
-  /** The top level domain name that you registered. */
   domain: string,
-  /** The name of the record, `''` instead of `'@'` for root. */
-  name: string,
   ipfsPath: string,
   config: CloudflareConfig,
 ) {
-  const fullname = ["_dnslink", name, domain].filter(Boolean).join(".");
+  const fullname = `_dnslink.${domain}`;
   const content = `dnslink=${ipfsPath}`;
   const zone = await findZone(domain, config);
   const record = await findRecord(zone.id, fullname, config);
