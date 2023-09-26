@@ -14,5 +14,6 @@ function handleRequest(request: Request) {
 }
 
 await serve(handleRequest, {
+  hostname: "[::]",
   port: 8080,
 });

@@ -9,7 +9,7 @@ import { parse, serve, ServeInit } from "../deps/deno.ts";
 
 const args = parse(Deno.args);
 const listenOptions: ServeInit = {};
-if (args.hostname) listenOptions.hostname = args.hostname;
+listenOptions.hostname = args.hostname || "[::]";
 listenOptions.port = +args.port || 3601;
 const dbOptions: SqliteOptions = {};
 if (args.mode) dbOptions.mode = args.mode;

@@ -19,7 +19,7 @@ export const handlers = {
 
 const LOGLEVEL = (Deno.env.get("LOGLEVEL") ?? "INFO") as LevelName;
 
-await setup({
+setup({
   handlers: {
     console: new handlers.PureConsoleHandler(LOGLEVEL, {
       formatter: ({ datetime, levelName, msg }) => {

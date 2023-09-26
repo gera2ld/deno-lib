@@ -160,6 +160,7 @@ export class HarReplayer {
     console.info(`Using HAR file at: ${this.harFile}`);
     await this.loading;
     await serve(this.handleRequest, {
+      hostname: "[::]",
       port: 3600,
       ...options,
     });
