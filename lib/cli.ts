@@ -30,3 +30,25 @@ export async function evalCommand(
     stderr: result.stderr && textDecoder.decode(result.stderr),
   };
 }
+
+export async function readStdIn() {
+  if (Deno.isatty(Deno.stdin.rid)) {
+    return;
+  }
+  const buffers: Uint8Array[] = [];
+  for await (const chunk of Deno.stdin.readable) {
+    buffers.push(chunk);
+  }
+  const size = buffers.map((arr) => arr.length).reduce(
+    (prev, cur) => prev + cur,
+    0,
+  );
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const buffer of buffers) {
+    bytes.set(buffer, offset);
+    offset += buffer.length;
+  }
+  const content = new TextDecoder().decode(bytes);
+  return content;
+}
