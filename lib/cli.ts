@@ -1,5 +1,11 @@
 export { colors, readAll } from "./deps/deno.ts";
 
+export class CommandError extends Error {
+  constructor(public code: number, public process: Deno.ChildProcess) {
+    super(`Command exit code: ${code}`);
+  }
+}
+
 export async function runCommand(
   command: string | URL,
   options: Deno.CommandOptions,
@@ -7,7 +13,7 @@ export async function runCommand(
   const cmd = new Deno.Command(command, options);
   const p = cmd.spawn();
   const status = await p.status;
-  if (!status.success) throw new Error(`Exit code: ${status.code}`);
+  if (!status.success) throw new CommandError(status.code, p);
   return p;
 }
 
