@@ -28,10 +28,7 @@ export { parse } from "https://deno.land/std@0.204.0/flags/mod.ts";
 export { format as formatTime } from "https://deno.land/std@0.204.0/datetime/mod.ts";
 export * as colors from "https://deno.land/std@0.204.0/fmt/colors.ts";
 
-export {
-  readAll,
-  readerFromStreamReader,
-} from "https://deno.land/std@0.204.0/streams/mod.ts";
+export { toArrayBuffer } from "https://deno.land/std@0.204.0/streams/mod.ts";
 
 export { serve } from "https://deno.land/std@0.204.0/http/server.ts";
 export type { ServeInit } from "https://deno.land/std@0.204.0/http/server.ts";

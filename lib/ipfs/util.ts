@@ -8,7 +8,7 @@ import {
   recursive as exporter,
   UnixFSEntry,
 } from "https://esm.sh/ipfs-unixfs-exporter@13.1.0";
-import { dirname, join, readAll, resolve } from "../deps/deno.ts";
+import { dirname, join, resolve } from "../deps/deno.ts";
 
 export interface FileItem {
   name: string;
@@ -119,9 +119,8 @@ export async function packCar(input: FileItem[]) {
 }
 
 export async function fileToBlob(filepath: string, mimeType: string) {
-  const f = await Deno.open(filepath);
-  const buffer = await readAll(f);
-  return new Blob([buffer], { type: mimeType });
+  const bytes = await Deno.readFile(filepath);
+  return new Blob([bytes], { type: mimeType });
 }
 
 export async function listCar(car: Uint8Array) {

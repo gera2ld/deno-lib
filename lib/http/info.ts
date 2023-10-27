@@ -1,5 +1,3 @@
-import { serve } from "../deps/deno.ts";
-
 function handleRequest(request: Request) {
   const output = {
     method: request.method,
@@ -13,7 +11,7 @@ function handleRequest(request: Request) {
   });
 }
 
-await serve(handleRequest, {
+Deno.serve({
   hostname: "[::]",
   port: 8080,
-});
+}, handleRequest);

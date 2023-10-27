@@ -4,14 +4,7 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/har.ts --harFile path/to/my-file.har
  */
 
-import {
-  base64,
-  parse,
-  readAll,
-  readerFromStreamReader,
-  serve,
-  ServeInit,
-} from "../deps/deno.ts";
+import { base64, parse, toArrayBuffer } from "../deps/deno.ts";
 
 export interface IKeyValue {
   name: string;
@@ -65,7 +58,7 @@ export interface HarReplayerOptions {
 export function loadResponseContent(response: IEntryResponse) {
   const encoding = response.content.encoding;
   const text = response.content.text;
-  if (encoding === "base64") return base64.decode(text);
+  if (encoding === "base64") return base64.decodeBase64(text);
   return text;
 }
 
@@ -134,7 +127,7 @@ export class HarReplayer {
       ),
       body: request.body &&
         new TextDecoder().decode(
-          await readAll(readerFromStreamReader(request.body.getReader())),
+          await toArrayBuffer(request.body),
         ),
     });
     const entry = this.entryMap.get(`${request.method}:${url}`);
@@ -156,20 +149,20 @@ export class HarReplayer {
     return response;
   };
 
-  async start(options?: ServeInit) {
+  async start(options?: Deno.ServeOptions) {
     console.info(`Using HAR file at: ${this.harFile}`);
     await this.loading;
-    await serve(this.handleRequest, {
+    Deno.serve({
       hostname: "[::]",
       port: 3600,
       ...options,
-    });
+    }, this.handleRequest);
   }
 }
 
 if (import.meta.main) {
   const args = parse(Deno.args);
-  const options: ServeInit = {};
+  const options: Deno.ServeOptions = {};
   if (args.hostname) options.hostname = args.hostname;
   if (args.port) options.port = +args.port;
   const harFile = args.harFile;

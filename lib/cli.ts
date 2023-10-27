@@ -1,4 +1,4 @@
-export { colors, readAll } from "./deps/deno.ts";
+export { colors } from "./deps/deno.ts";
 
 export class CommandError extends Error {
   constructor(public code: number, public process: Deno.ChildProcess) {
