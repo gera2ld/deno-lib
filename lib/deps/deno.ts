@@ -19,9 +19,9 @@ export {
 export {
   getLogger,
   handlers,
+  type LevelName,
   setup,
 } from "https://deno.land/std@0.204.0/log/mod.ts";
-export type { LevelName } from "https://deno.land/std@0.204.0/log/mod.ts";
 
 export { parse } from "https://deno.land/std@0.204.0/flags/mod.ts";
 
@@ -30,5 +30,7 @@ export * as colors from "https://deno.land/std@0.204.0/fmt/colors.ts";
 
 export { toArrayBuffer } from "https://deno.land/std@0.204.0/streams/mod.ts";
 
-export { serve } from "https://deno.land/std@0.204.0/http/server.ts";
-export type { ServeInit } from "https://deno.land/std@0.204.0/http/server.ts";
+export {
+  serve,
+  type ServeInit,
+} from "https://deno.land/std@0.204.0/http/server.ts";
