@@ -34,6 +34,7 @@ cli.command("packCar <...paths>")
         truncate: true,
       })).writable,
     );
+    console.info(cid, name);
   });
 
 cli.command("listCar <carFile>")
