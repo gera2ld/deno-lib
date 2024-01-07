@@ -1,14 +1,10 @@
-import {
-  CAREncoderStream,
-  createDirectoryEncoderStream,
-} from "https://esm.sh/ipfs-car@1.0.0";
-import type { Block } from "https://esm.sh/@ipld/unixfs@2.1.1";
-import { CarIndexer } from "https://esm.sh/@ipld/car@5.1.1/indexer";
-import {
-  recursive as exporter,
-  UnixFSEntry,
-} from "https://esm.sh/ipfs-unixfs-exporter@13.1.0";
 import { dirname, join, resolve } from "../deps/deno.ts";
+import {
+  listCar,
+  packCar as packCarImpl,
+} from "https://raw.githubusercontent.com/gera2ld/js-lib/dist/deno/ipfs/index.ts";
+
+export { listCar } from "https://raw.githubusercontent.com/gera2ld/js-lib/dist/deno/ipfs/index.ts";
 
 export interface FileItem {
   name: string;
@@ -86,64 +82,12 @@ export async function packCar(input: FileItem[]) {
       stream: () => f.readable,
     };
   }));
-  const blocks: Block[] = [];
-  await createDirectoryEncoderStream(files)
-    .pipeTo(
-      new WritableStream({
-        write(block) {
-          blocks.push(block);
-        },
-      }),
-    );
-  const rootCID = blocks.at(-1)!.cid;
-  const chunks: Uint8Array[] = [];
-  await new ReadableStream({
-    pull(controller) {
-      if (blocks.length) {
-        controller.enqueue(blocks.shift());
-      } else {
-        controller.close();
-      }
-    },
-  })
-    .pipeThrough(new CAREncoderStream([rootCID]))
-    .pipeTo(
-      new WritableStream({
-        write(chunk) {
-          chunks.push(chunk);
-        },
-      }),
-    );
-  const car = new Blob(chunks);
-  return { cid: rootCID.toString(), car };
+  return packCarImpl(files);
 }
 
 export async function fileToBlob(filepath: string, mimeType: string) {
   const bytes = await Deno.readFile(filepath);
   return new Blob([bytes], { type: mimeType });
-}
-
-export async function listCar(car: Uint8Array) {
-  const iterable = await CarIndexer.fromBytes(car);
-  const index = new Map<string, { blockLength: number; blockOffset: number }>();
-  const order: string[] = [];
-  for await (const { cid, blockLength, blockOffset } of iterable) {
-    const cidStr = cid.toString();
-    index.set(cidStr, { blockLength, blockOffset });
-    order.push(cidStr);
-  }
-  const roots = await iterable.getRoots();
-  const entryIterable = exporter(roots[0], {
-    get(cid) {
-      const { blockOffset, blockLength } = index.get(cid.toString())!;
-      return car.slice(blockOffset, blockOffset + blockLength);
-    },
-  });
-  const entries: UnixFSEntry[] = [];
-  for await (const entry of entryIterable) {
-    entries.push(entry);
-  }
-  return entries;
 }
 
 export async function findCnames(car: Uint8Array) {

@@ -1,24 +1,9 @@
 import { cac } from "../deps/cac.ts";
 import { loadEnv } from "../env.ts";
-import { uploadCarFile, uploadFiles } from "./web3-storage.ts";
-import { Web3StorageOptions } from "./types.ts";
 import { filesFromPaths, findCnames, listCar, packCar } from "./util.ts";
 
 await loadEnv();
 const cli = cac("ipfs-uploader");
-
-cli.command("upload <...paths>")
-  .option("--name <name>", "Provide a name for the CAR")
-  .action(async (paths: string[], options: Web3StorageOptions) => {
-    options.name ||= paths[0].split("/").pop();
-    console.info(await uploadFiles(paths, options));
-  });
-
-cli.command("uploadCar <carFile>")
-  .option("--name <name>", "Provide a name for the CAR")
-  .action(async (file: string, options: Web3StorageOptions) => {
-    console.info(await uploadCarFile(file, options));
-  });
 
 cli.command("packCar <...paths>")
   .option("-o, --output <name>", "Provide a name for the CAR")
