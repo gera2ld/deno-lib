@@ -1,27 +1,22 @@
 import {
+  BaseHandler,
   formatTime,
   getLogger,
-  handlers as builtInHandlers,
   LevelName,
   setup,
 } from "./deps/deno.ts";
 
-class PureConsoleHandler extends builtInHandlers.BaseHandler {
+class PureConsoleHandler extends BaseHandler {
   log(msg: string): void {
     console.log(msg);
   }
 }
 
-export const handlers = {
-  ...builtInHandlers,
-  PureConsoleHandler,
-};
-
 const LOGLEVEL = (Deno.env.get("LOGLEVEL") ?? "INFO") as LevelName;
 
 setup({
   handlers: {
-    console: new handlers.PureConsoleHandler(LOGLEVEL, {
+    console: new PureConsoleHandler(LOGLEVEL, {
       formatter: ({ datetime, levelName, msg }) => {
         const ts = formatTime(datetime, "yyyy-MM-dd HH:mm:ss");
         return `[${ts}] ${levelName} ${msg}`;

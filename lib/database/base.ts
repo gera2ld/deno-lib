@@ -8,29 +8,24 @@ export interface Adapter<T> {
 export class Database<T> {
   data: T;
 
-  dump: () => void;
-
   constructor(private defaults: T, private adapter: Adapter<T>) {
     this.data = { ...defaults };
-    this.dump = debounce(() => this.dumpSafe(), 200);
   }
+
+  dump = debounce(() => {
+    this.dumpOnce().catch((err) => {
+      console.error(err);
+    });
+  }, 200);
 
   dumpOnce() {
     return this.adapter.write(this.data);
   }
 
-  async dumpSafe() {
-    try {
-      await this.dumpOnce();
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   async read() {
     this.data = {
       ...this.defaults,
-      ...await this.adapter.read(),
+      ...(await this.adapter.read()),
     };
   }
 }

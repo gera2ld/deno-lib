@@ -1,4 +1,4 @@
-import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
+import { DB } from "../deps/sqlite.ts";
 
 const initSql = `
 CREATE TABLE IF NOT EXISTS kv (

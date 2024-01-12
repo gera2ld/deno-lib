@@ -1,4 +1,4 @@
-import { base64 } from "../deps/deno.ts";
+import { decodeBase64, encodeBase64 } from "../deps/deno.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
@@ -56,7 +56,7 @@ export class GiteaStorage implements IStorage {
     }
     if (data.type !== "file") throw data;
     const source = data.encoding === "base64"
-      ? new TextDecoder().decode(base64.decode(data.content))
+      ? new TextDecoder().decode(decodeBase64(data.content))
       : data.content;
     return { sha: data.sha, source };
   }
@@ -95,7 +95,7 @@ export class GiteaStorage implements IStorage {
       sha,
       message,
       branch,
-      content: base64.encode(content),
+      content: encodeBase64(content),
     });
     return data;
   }

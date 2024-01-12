@@ -1,4 +1,4 @@
-import { base64 } from "../deps/deno.ts";
+import { decodeBase64, encodeBase64 } from "../deps/deno.ts";
 import { ensureEnvs } from "../env.ts";
 import { IStorage } from "../types.ts";
 
@@ -26,7 +26,7 @@ export class GitHubStorage implements IStorage {
         headers: {
           Accept: "application/vnd.github.v3+json",
           Authorization: "Basic " +
-            base64.encode(`${this.user}:${this.accessToken}`),
+            encodeBase64(`${this.user}:${this.accessToken}`),
         },
         body: method === "GET" ? undefined : JSON.stringify(payload),
       },
@@ -59,7 +59,7 @@ export class GitHubStorage implements IStorage {
     }
     if (data.type !== "file") throw data;
     const source = data.encoding === "base64"
-      ? new TextDecoder().decode(base64.decode(data.content))
+      ? new TextDecoder().decode(decodeBase64(data.content))
       : data.content;
     return { sha: data.sha, source };
   }
@@ -96,7 +96,7 @@ export class GitHubStorage implements IStorage {
       sha,
       message,
       branch,
-      content: base64.encode(content),
+      content: encodeBase64(content),
     });
     return data;
   }
