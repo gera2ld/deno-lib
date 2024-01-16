@@ -100,7 +100,10 @@ export class HarReplayer {
 
   async loadHar(path: string) {
     const entryMap = new Map<string, IEntry>();
-    const data = JSON.parse(await Deno.readTextFile(path));
+    let text = await Deno.readTextFile(path);
+    // Remove BOM
+    if (text.startsWith('\ufeff')) text = text.slice(1);
+    const data = JSON.parse(text);
     data.log.entries.forEach((entry: IEntry) => {
       const { request } = entry;
       const bodyMimeType = request.postData?.mimeType?.split(";")[0];
