@@ -38,7 +38,7 @@ export async function evalCommand(
 }
 
 export async function readStdIn() {
-  if (Deno.isatty(Deno.stdin.rid)) {
+  if (Deno.stdin.isTerminal()) {
     return;
   }
   const buffers: Uint8Array[] = [];
