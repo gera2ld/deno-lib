@@ -102,7 +102,7 @@ export class HarReplayer {
     const entryMap = new Map<string, IEntry>();
     let text = await Deno.readTextFile(path);
     // Remove BOM
-    if (text.startsWith('\ufeff')) text = text.slice(1);
+    if (text.startsWith("\ufeff")) text = text.slice(1);
     const data = JSON.parse(text);
     data.log.entries.forEach((entry: IEntry) => {
       const { request } = entry;

@@ -1,39 +1,48 @@
 export { colors } from "./deps/deno.ts";
 
 export class CommandError extends Error {
-  constructor(public code: number, public process: Deno.ChildProcess) {
-    super(`Command exit code: ${code}`);
+  constructor(public output: Deno.CommandStatus) {
+    super(`Command exit code: ${output.code}`);
   }
 }
 
-export async function runCommand(
+async function getCommandOutput(command: Deno.Command) {
+  const output = await command.output();
+  const decoder = new TextDecoder();
+  return {
+    code: output.code,
+    success: output.success,
+    signal: output.signal,
+    get stdout() {
+      return decoder.decode(output.stdout);
+    },
+    get stderr() {
+      return decoder.decode(output.stderr);
+    },
+  };
+}
+
+export function runCommand(
   command: string | URL,
   options: Deno.CommandOptions,
 ) {
   const cmd = new Deno.Command(command, options);
-  const p = cmd.spawn();
-  const status = await p.status;
-  if (!status.success) throw new CommandError(status.code, p);
-  return p;
-}
-
-export async function evalCommand(
-  command: string | URL,
-  options: Deno.CommandOptions,
-) {
-  const cmd = new Deno.Command(command, {
-    ...options,
-    stdout: "piped",
-    stderr: "piped",
-  });
-  const p = cmd.spawn();
-  // FIXME: Pipe buffer is limited to 64K, so we must readAll from the stream to get complete data
-  const result = await p.output();
-  if (!result.success) throw new Error(`Exit code: ${result.code}`);
-  const textDecoder = new TextDecoder();
   return {
-    stdout: result.stdout && textDecoder.decode(result.stdout),
-    stderr: result.stderr && textDecoder.decode(result.stderr),
+    async output(ensureSuccess = true) {
+      const output = await getCommandOutput(cmd);
+      if (ensureSuccess && !output.success) {
+        throw new CommandError(output);
+      }
+      return output;
+    },
+    async spawn(ensureSuccess = true) {
+      const child = cmd.spawn();
+      const status = await child.status;
+      if (ensureSuccess && !status.success) {
+        throw new CommandError(status);
+      }
+      return status;
+    },
   };
 }
 
@@ -45,10 +54,9 @@ export async function readStdIn() {
   for await (const chunk of Deno.stdin.readable) {
     buffers.push(chunk);
   }
-  const size = buffers.map((arr) => arr.length).reduce(
-    (prev, cur) => prev + cur,
-    0,
-  );
+  const size = buffers
+    .map((arr) => arr.length)
+    .reduce((prev, cur) => prev + cur, 0);
   const bytes = new Uint8Array(size);
   let offset = 0;
   for (const buffer of buffers) {
