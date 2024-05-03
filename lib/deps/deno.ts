@@ -31,8 +31,3 @@ export { format as formatTime } from "https://deno.land/std@0.212.0/datetime/mod
 export * as colors from "https://deno.land/std@0.212.0/fmt/colors.ts";
 
 export { toArrayBuffer } from "https://deno.land/std@0.212.0/streams/mod.ts";
-
-export {
-  serve,
-  type ServeInit,
-} from "https://deno.land/std@0.212.0/http/server.ts";
