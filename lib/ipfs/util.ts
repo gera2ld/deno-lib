@@ -1,10 +1,10 @@
-import { dirname, join, resolve } from "../deps/deno.ts";
+import { dirname, join, resolve } from 'jsr:@std/path';
 import {
   listCar,
   packCar as packCarImpl,
-} from "https://raw.githubusercontent.com/gera2ld/js-lib/dist/deno/ipfs/index.ts";
+} from 'https://raw.githubusercontent.com/gera2ld/js-lib/dist/deno/ipfs/index.ts';
 
-export { listCar } from "https://raw.githubusercontent.com/gera2ld/js-lib/dist/deno/ipfs/index.ts";
+export { listCar } from 'https://raw.githubusercontent.com/gera2ld/js-lib/dist/deno/ipfs/index.ts';
 
 export interface FileItem {
   name: string;
@@ -14,7 +14,7 @@ export interface FileItem {
 export async function filesFromPaths(paths: string[], base?: string) {
   if (base != null) {
     base = resolve(base);
-    if (!base.endsWith("/")) base += "/";
+    if (!base.endsWith('/')) base += '/';
   }
   const fileLists = await Promise.all(paths.map(async (path) => {
     path = resolve(path);
@@ -26,11 +26,11 @@ export async function filesFromPaths(paths: string[], base?: string) {
     if (base == null) {
       base = root;
     } else {
-      const rootParts = root.split("/");
-      const baseParts = base.split("/");
+      const rootParts = root.split('/');
+      const baseParts = base.split('/');
       for (let i = 0; i < baseParts.length; i += 1) {
         if (rootParts[i] !== baseParts[i]) {
-          base = baseParts.slice(0, i).join("/") + "/";
+          base = baseParts.slice(0, i).join('/') + '/';
           break;
         }
       }
@@ -93,7 +93,7 @@ export async function fileToBlob(filepath: string, mimeType: string) {
 export async function findCnames(car: Uint8Array) {
   const entries = await listCar(car);
   const pointers = entries.filter((entry) =>
-    entry.name === "CNAME" || entry.name.endsWith(".CNAME")
+    entry.name === 'CNAME' || entry.name.endsWith('.CNAME')
   );
   const decoder = new TextDecoder();
   const values: { cid: string; cnames: string[] }[] = [];
@@ -101,7 +101,7 @@ export async function findCnames(car: Uint8Array) {
     const targetPath = pointer.path.slice(0, -6);
     const target = entries.find((entry) => entry.path === targetPath);
     if (!target) return;
-    const cnames = decoder.decode(pointer.node as Uint8Array).split("\n").map(
+    const cnames = decoder.decode(pointer.node as Uint8Array).split('\n').map(
       (line) => line.trim(),
     ).filter(Boolean);
     values.push({

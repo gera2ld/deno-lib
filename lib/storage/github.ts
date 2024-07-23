@@ -1,8 +1,8 @@
-import { decodeBase64, encodeBase64 } from "../deps/deno.ts";
-import { ensureEnvs } from "../env.ts";
-import { IStorage } from "../types.ts";
+import { decodeBase64, encodeBase64 } from 'jsr:@std/encoding/base64';
+import { ensureEnvs } from '../env.ts';
+import { IStorage } from '../types.ts';
 
-export const BASE_URL = "https://api.github.com";
+export const BASE_URL = 'https://api.github.com';
 
 export class GitHubStorage implements IStorage {
   constructor(
@@ -13,7 +13,7 @@ export class GitHubStorage implements IStorage {
   }
 
   private async request<T>({
-    method = "GET",
+    method = 'GET',
     path,
   }: {
     method?: string;
@@ -24,11 +24,11 @@ export class GitHubStorage implements IStorage {
       {
         method,
         headers: {
-          Accept: "application/vnd.github.v3+json",
-          Authorization: "Basic " +
+          Accept: 'application/vnd.github.v3+json',
+          Authorization: 'Basic ' +
             encodeBase64(`${this.user}:${this.accessToken}`),
         },
-        body: method === "GET" ? undefined : JSON.stringify(payload),
+        body: method === 'GET' ? undefined : JSON.stringify(payload),
       },
     );
     const data = await res.json() as T;
@@ -57,8 +57,8 @@ export class GitHubStorage implements IStorage {
       if (err?.status === 404 && silent) return;
       throw err;
     }
-    if (data.type !== "file") throw data;
-    const source = data.encoding === "base64"
+    if (data.type !== 'file') throw data;
+    const source = data.encoding === 'base64'
       ? new TextDecoder().decode(decodeBase64(data.content))
       : data.content;
     return { sha: data.sha, source };
@@ -79,7 +79,7 @@ export class GitHubStorage implements IStorage {
     path,
     sha,
     branch,
-    message = "update",
+    message = 'update',
     content,
   }: {
     path: string;
@@ -90,7 +90,7 @@ export class GitHubStorage implements IStorage {
     content: string;
   }) {
     const data = await this.request({
-      method: "PUT",
+      method: 'PUT',
       path,
     }, {
       sha,
@@ -111,9 +111,9 @@ export class GitHubStorage implements IStorage {
     update: string | ((source: string) => string);
   }) {
     const data = await this.getInternalFile({ path, silent: true });
-    const content = typeof update === "string"
+    const content = typeof update === 'string'
       ? update
-      : update(data?.source || "");
+      : update(data?.source || '');
     return this.putFile({ path, branch, sha: data?.sha, content });
   }
 
@@ -134,7 +134,7 @@ export class GitHubStorage implements IStorage {
   }
 
   static loadFromEnv() {
-    const env = ensureEnvs(["GITHUB_REPO", "GITHUB_USER", "GITHUB_PAT"]);
+    const env = ensureEnvs(['GITHUB_REPO', 'GITHUB_USER', 'GITHUB_PAT']);
     return new GitHubStorage(env.GITHUB_REPO, env.GITHUB_USER, env.GITHUB_PAT);
   }
 }

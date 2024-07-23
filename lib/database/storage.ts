@@ -1,5 +1,5 @@
-import { IStorage } from "../types.ts";
-import { Adapter, openDatabase } from "./base.ts";
+import { IStorage } from '../types.ts';
+import { Adapter, openDatabase } from './base.ts';
 
 export class StorageAdapter<T> implements Adapter<T> {
   constructor(private storage: IStorage, private path: string) {}
@@ -7,7 +7,7 @@ export class StorageAdapter<T> implements Adapter<T> {
   async read(): Promise<T | null> {
     try {
       const data = await this.storage.getFile({ path: this.path });
-      return JSON.parse(data || "") as T;
+      return JSON.parse(data || '') as T;
     } catch {
       return null;
     }

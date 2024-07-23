@@ -1,9 +1,10 @@
 /**
  * Note that Deno Deploy does not support fs APIs, please don't import this module
  */
-import { ensureFile, resolve } from "../deps/deno.ts";
-import { ensureEnvs } from "../env.ts";
-import { IStorage } from "../types.ts";
+import { ensureFile } from 'jsr:@std/fs';
+import { resolve } from 'jsr:@std/path';
+import { ensureEnvs } from '../env.ts';
+import { IStorage } from '../types.ts';
 
 export class LocalFileStorage implements IStorage {
   constructor(private repo: string) {}
@@ -14,7 +15,7 @@ export class LocalFileStorage implements IStorage {
       const content = await Deno.readTextFile(p);
       return content;
     } catch (err) {
-      if (err?.code === "ENOENT") {
+      if (err?.code === 'ENOENT') {
         if (silent) return;
         throw { status: 404, data: err };
       }
@@ -33,9 +34,9 @@ export class LocalFileStorage implements IStorage {
     path: string;
     update: string | ((source: string) => string);
   }) {
-    const content = typeof update === "string"
+    const content = typeof update === 'string'
       ? update
-      : update(await this.getFile({ path, silent: true }) || "");
+      : update(await this.getFile({ path, silent: true }) || '');
     return this.putFile({ path, content });
   }
 
@@ -47,7 +48,7 @@ export class LocalFileStorage implements IStorage {
   }
 
   static loadFromEnv() {
-    const env = ensureEnvs(["LOCAL_REPO"]);
+    const env = ensureEnvs(['LOCAL_REPO']);
     return new LocalFileStorage(env.LOCAL_REPO);
   }
 }

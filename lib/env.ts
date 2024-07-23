@@ -1,4 +1,4 @@
-import { load, type LoadOptions } from "./deps/deno.ts";
+import { load, type LoadOptions } from 'jsr:@std/dotenv';
 
 export function loadEnv(param?: LoadOptions) {
   return load({
@@ -27,7 +27,7 @@ export function ensureEnvs(keys: string[]) {
     }
   }
   if (missing.length) {
-    throw new Error(`Missing environment variables: ${missing.join(", ")}`);
+    throw new Error(`Missing environment variables: ${missing.join(', ')}`);
   }
   return env;
 }

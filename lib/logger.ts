@@ -1,10 +1,5 @@
-import {
-  BaseHandler,
-  formatTime,
-  getLogger,
-  LevelName,
-  setup,
-} from "./deps/deno.ts";
+import { format } from 'jsr:@std/datetime';
+import { BaseHandler, getLogger, type LevelName, setup } from 'jsr:@std/log';
 
 class PureConsoleHandler extends BaseHandler {
   log(msg: string): void {
@@ -12,13 +7,13 @@ class PureConsoleHandler extends BaseHandler {
   }
 }
 
-const LOGLEVEL = (Deno.env.get("LOGLEVEL") ?? "INFO") as LevelName;
+const LOGLEVEL = (Deno.env.get('LOGLEVEL') ?? 'INFO') as LevelName;
 
 setup({
   handlers: {
     console: new PureConsoleHandler(LOGLEVEL, {
       formatter: ({ datetime, levelName, msg }) => {
-        const ts = formatTime(datetime, "yyyy-MM-dd HH:mm:ss");
+        const ts = format(datetime, 'yyyy-MM-dd HH:mm:ss');
         return `[${ts}] ${levelName} ${msg}`;
       },
     }),
@@ -26,7 +21,7 @@ setup({
   loggers: {
     default: {
       level: LOGLEVEL,
-      handlers: ["console"],
+      handlers: ['console'],
     },
   },
 });

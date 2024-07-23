@@ -1,7 +1,7 @@
-import { encodeBase64 } from "../deps/deno.ts";
-import { ensureEnvs } from "../env.ts";
-import { IStorage } from "../types.ts";
-import { BASE_URL } from "./github.ts";
+import { encodeBase64 } from 'jsr:@std/encoding/base64';
+import { ensureEnvs } from '../env.ts';
+import { IStorage } from '../types.ts';
+import { BASE_URL } from './github.ts';
 
 export class GitHubGistStorage implements IStorage {
   constructor(
@@ -12,7 +12,7 @@ export class GitHubGistStorage implements IStorage {
   }
 
   private async request({
-    method = "GET",
+    method = 'GET',
   }: {
     method?: string;
   }, payload?: unknown) {
@@ -21,11 +21,11 @@ export class GitHubGistStorage implements IStorage {
       {
         method,
         headers: {
-          Accept: "application/vnd.github.v3+json",
-          Authorization: "Basic " +
+          Accept: 'application/vnd.github.v3+json',
+          Authorization: 'Basic ' +
             encodeBase64(`${this.user}:${this.accessToken}`),
         },
-        body: method === "GET" ? undefined : JSON.stringify(payload),
+        body: method === 'GET' ? undefined : JSON.stringify(payload),
       },
     );
     const data = await res.json();
@@ -64,7 +64,7 @@ export class GitHubGistStorage implements IStorage {
 
   putFile({ path, content }: { path: string; content: string }) {
     return this.request({
-      method: "PATCH",
+      method: 'PATCH',
     }, {
       files: {
         [path]: {
@@ -78,9 +78,9 @@ export class GitHubGistStorage implements IStorage {
     path: string;
     update: string | ((source: string) => string);
   }) {
-    const content = typeof update === "string"
+    const content = typeof update === 'string'
       ? update
-      : update(await this.getFile({ path, silent: true }) || "");
+      : update(await this.getFile({ path, silent: true }) || '');
     return this.putFile({ path, content });
   }
 
@@ -98,7 +98,7 @@ export class GitHubGistStorage implements IStorage {
   }
 
   static loadFromEnv() {
-    const env = ensureEnvs(["GIST_ID", "GIST_OWNER", "GITHUB_PAT"]);
+    const env = ensureEnvs(['GIST_ID', 'GIST_OWNER', 'GITHUB_PAT']);
     return new GitHubGistStorage(env.GIST_ID, env.GIST_OWNER, env.GITHUB_PAT);
   }
 }

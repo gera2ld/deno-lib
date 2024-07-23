@@ -1,6 +1,6 @@
-import { parse } from "https://esm.sh/tldts";
-import { requestJson } from "../../http/util.ts";
-import { ensureEnv } from "../../env.ts";
+import { parse } from 'https://esm.sh/tldts';
+import { requestJson } from '../../http/util.ts';
+import { ensureEnv } from '../../env.ts';
 
 export interface CloudflareConfig {
   token?: string;
@@ -18,12 +18,12 @@ function request<T = unknown>(
   url: string,
   opts: { method?: string; body?: Record<string, unknown> } & CloudflareConfig,
 ) {
-  const token = opts.token || ensureEnv("CLOUDFLARE_TOKEN");
+  const token = opts.token || ensureEnv('CLOUDFLARE_TOKEN');
   return requestJson<T>(url, {
     method: opts.method,
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: opts.body == null ? null : JSON.stringify(opts.body),
   });
@@ -64,9 +64,9 @@ async function createRecord(
     `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`,
     {
       ...config,
-      method: "POST",
+      method: 'POST',
       body: {
-        type: "TXT",
+        type: 'TXT',
         name,
         content,
         ttl: 1,
@@ -85,7 +85,7 @@ async function updateRecord(
     `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records/${recordId}`,
     {
       ...config,
-      method: "PATCH",
+      method: 'PATCH',
       body: {
         content,
       },

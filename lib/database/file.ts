@@ -1,8 +1,8 @@
 /**
  * Note that Deno Deploy does not support fs APIs, please don't import this module
  */
-import { ensureFile } from "../deps/deno.ts";
-import { Adapter, openDatabase } from "./base.ts";
+import { ensureFile } from 'jsr:@std/fs';
+import { Adapter, openDatabase } from './base.ts';
 
 export class JSONFileAdapter<T> implements Adapter<T> {
   constructor(private filename: string) {}

@@ -1,22 +1,22 @@
-import { ensureEnvs } from "../env.ts";
-import { IStorage } from "../types.ts";
+import { ensureEnvs } from '../env.ts';
+import { IStorage } from '../types.ts';
 
 export class APIStorage implements IStorage {
   constructor(private endpoint: string, private token: string) {}
 
   private async request<T>({
     url,
-    method = "GET",
-    type = "json",
+    method = 'GET',
+    type = 'json',
   }: {
     url: string;
     method?: string;
-    type?: "json" | "text";
+    type?: 'json' | 'text';
   }, payload?: string) {
     const res = await fetch(this.endpoint + url, {
       method,
       headers: {
-        "Authorization": `Bearer ${this.token}`,
+        'Authorization': `Bearer ${this.token}`,
       },
       body: payload,
     });
@@ -29,7 +29,7 @@ export class APIStorage implements IStorage {
     try {
       return await this.request<string>({
         url: path,
-        type: "text",
+        type: 'text',
       });
     } catch (err) {
       if (err?.status === 404 && silent) return;
@@ -41,7 +41,7 @@ export class APIStorage implements IStorage {
     { path, content }: { path: string; content: string },
   ) {
     return this.request({
-      method: "PUT",
+      method: 'PUT',
       url: path,
     }, content);
   }
@@ -50,9 +50,9 @@ export class APIStorage implements IStorage {
     path: string;
     update: string | ((source: string) => string);
   }) {
-    const content = typeof update === "string"
+    const content = typeof update === 'string'
       ? update
-      : update(await this.getFile({ path, silent: true }) || "");
+      : update(await this.getFile({ path, silent: true }) || '');
     return this.putFile({ path, content });
   }
 
@@ -65,8 +65,8 @@ export class APIStorage implements IStorage {
 
   static loadFromEnv() {
     const env = ensureEnvs([
-      "STORAGE_API_ENDPOINT",
-      "STORAGE_API_TOKEN",
+      'STORAGE_API_ENDPOINT',
+      'STORAGE_API_TOKEN',
     ]);
     return new APIStorage(env.STORAGE_API_ENDPOINT, env.STORAGE_API_TOKEN);
   }

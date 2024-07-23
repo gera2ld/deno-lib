@@ -1,5 +1,5 @@
 import { ensureEnv, ensureEnvs } from '../lib/env.ts';
-import { assertEquals, assertThrows } from './deps.ts';
+import { assertEquals, assertThrows } from 'jsr:@std/assert';
 
 Deno.test('ensureEnv', () => {
   const envKey = 'NOT_EXIST_ENV';

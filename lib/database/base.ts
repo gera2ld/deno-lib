@@ -1,4 +1,4 @@
-import { debounce } from "../deps/lodash.ts";
+import { debounce } from 'jsr:@es-toolkit/es-toolkit';
 
 export interface Adapter<T> {
   read(): Promise<T | null>;

@@ -1,5 +1,3 @@
-export { colors } from "./deps/deno.ts";
-
 export class CommandError extends Error {
   constructor(public output: Deno.CommandStatus) {
     super(`Command exit code: ${output.code}`);

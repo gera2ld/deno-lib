@@ -1,7 +1,7 @@
-import { ensureEnvs } from "../env.ts";
-import { IStorage } from "../types.ts";
+import { ensureEnvs } from '../env.ts';
+import { IStorage } from '../types.ts';
 
-const BASE_URL = "https://gitlab.com/api/v4";
+const BASE_URL = 'https://gitlab.com/api/v4';
 
 export class GitLabStorage implements IStorage {
   constructor(
@@ -13,24 +13,24 @@ export class GitLabStorage implements IStorage {
 
   private async request<T>({
     url,
-    method = "GET",
-    type = "json",
+    method = 'GET',
+    type = 'json',
     headers = {
-      "content-type": "application/json",
+      'content-type': 'application/json',
     },
   }: {
     url: string;
     method?: string;
-    type?: "json" | "text";
+    type?: 'json' | 'text';
     headers?: Record<string, string>;
   }, payload?: unknown): Promise<T> {
     const res = await fetch(BASE_URL + url, {
       method,
       headers: {
         ...headers,
-        "private-token": this.accessToken,
+        'private-token': this.accessToken,
       },
-      body: method === "GET" ? undefined : JSON.stringify(payload),
+      body: method === 'GET' ? undefined : JSON.stringify(payload),
     });
     const data = await res[type]();
     if (!res.ok) throw { status: res.status, data };
@@ -40,7 +40,7 @@ export class GitLabStorage implements IStorage {
   private async requestFile<T>({
     path,
     branch,
-    method = "GET",
+    method = 'GET',
     raw = false,
   }: {
     path: string;
@@ -50,8 +50,8 @@ export class GitLabStorage implements IStorage {
   }, payload?: unknown) {
     const url = `/projects/${encodeURIComponent(this.repo)}/repository/files/${
       encodeURIComponent(path)
-    }${raw ? "/raw" : ""}?ref=${encodeURIComponent(branch)}`;
-    const data = await this.request<T>({ url, method, type: "text" }, payload);
+    }${raw ? '/raw' : ''}?ref=${encodeURIComponent(branch)}`;
+    const data = await this.request<T>({ url, method, type: 'text' }, payload);
     return data;
   }
 
@@ -63,7 +63,7 @@ export class GitLabStorage implements IStorage {
         url: `/projects/${encodeURIComponent(this.repo)}/repository/branches`,
       });
       this.defaultBranch = branches.find((branch) => branch.default)?.name ||
-        "main";
+        'main';
     }
     return this.defaultBranch;
   }
@@ -89,7 +89,7 @@ export class GitLabStorage implements IStorage {
     path,
     content,
     branch,
-    message = "update",
+    message = 'update',
     isNew = false,
   }: {
     path: string;
@@ -100,7 +100,7 @@ export class GitLabStorage implements IStorage {
   }) {
     branch ??= await this.getDefaultBranch();
     const data = await this.request({
-      method: isNew ? "POST" : "PUT",
+      method: isNew ? 'POST' : 'PUT',
       url: `/projects/${encodeURIComponent(this.repo)}/repository/files/${
         encodeURIComponent(path)
       }`,
@@ -119,7 +119,7 @@ export class GitLabStorage implements IStorage {
   }) {
     branch ??= await this.getDefaultBranch();
     const data = await this.getFile({ path, branch, silent: true });
-    const content = typeof update === "string" ? update : update(data || "");
+    const content = typeof update === 'string' ? update : update(data || '');
     return this.putFile({ path, content, branch, isNew: data == null });
   }
 
@@ -140,7 +140,7 @@ export class GitLabStorage implements IStorage {
   }
 
   static loadFromEnv() {
-    const env = ensureEnvs(["GITLAB_REPO", "GITLAB_PAT"]);
+    const env = ensureEnvs(['GITLAB_REPO', 'GITLAB_PAT']);
     return new GitLabStorage(
       env.GITLAB_REPO,
       env.GITLAB_PAT,

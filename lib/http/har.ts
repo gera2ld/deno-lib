@@ -4,7 +4,9 @@
  * $ deno run -A https://raw.githubusercontent.com/gera2ld/deno-lib/main/lib/har.ts --harFile path/to/my-file.har
  */
 
-import { decodeBase64, parseArgs, toArrayBuffer } from "../deps/deno.ts";
+import { parseArgs } from 'jsr:@std/cli';
+import { decodeBase64 } from 'jsr:@std/encoding/base64';
+import { toArrayBuffer } from 'jsr:@std/streams';
 
 export interface IKeyValue {
   name: string;
@@ -41,14 +43,12 @@ type MaybePromise<T> = T | Promise<T>;
 
 export interface HarReplayerOptions {
   handle404: (req: Request) => MaybePromise<Response>;
-  resolveKey: (
-    request: {
-      method: string;
-      url: string;
-      headers?: IKeyValue[] | null;
-      body?: string | null;
-    },
-  ) => string;
+  resolveKey: (request: {
+    method: string;
+    url: string;
+    headers?: IKeyValue[] | null;
+    body?: string | null;
+  }) => string;
   processResponse: (
     resp: Response,
     req: Request,
@@ -58,7 +58,7 @@ export interface HarReplayerOptions {
 export function loadResponseContent(response: IEntryResponse) {
   const encoding = response.content.encoding;
   const text = response.content.text;
-  if (encoding === "base64") return decodeBase64(text);
+  if (encoding === 'base64') return decodeBase64(text);
   return text;
 }
 
@@ -72,25 +72,22 @@ export class HarReplayer {
     resolveKey: (request) => {
       return [
         request.method,
-        request.url.replace(/^https?:\/\/[^/]+/, ""),
-      ].join(":");
+        request.url.replace(/^https?:\/\/[^/]+/, ''),
+      ].join(':');
     },
     processResponse: (resp: Response, req: Request) => {
-      const origin = req.headers.get("origin") || "*";
-      resp.headers.set("access-control-allow-origin", origin);
-      resp.headers.set("access-control-allow-credentials", "true");
-      resp.headers.set("access-control-allow-headers", "content-type");
-      resp.headers.delete("content-encoding");
+      const origin = req.headers.get('origin') || '*';
+      resp.headers.set('access-control-allow-origin', origin);
+      resp.headers.set('access-control-allow-credentials', 'true');
+      resp.headers.set('access-control-allow-headers', 'content-type');
+      resp.headers.delete('content-encoding');
     },
   };
 
   options: HarReplayerOptions;
 
-  constructor(
-    private harFile: string,
-    options?: Partial<HarReplayerOptions>,
-  ) {
-    if (!harFile) throw new Error("harFile is required");
+  constructor(private harFile: string, options?: Partial<HarReplayerOptions>) {
+    if (!harFile) throw new Error('harFile is required');
     this.options = {
       ...HarReplayer.defaultOptions,
       ...options,
@@ -102,16 +99,16 @@ export class HarReplayer {
     const entryMap = new Map<string, IEntry>();
     let text = await Deno.readTextFile(path);
     // Remove BOM
-    if (text.startsWith("\ufeff")) text = text.slice(1);
+    if (text.startsWith('\ufeff')) text = text.slice(1);
     const data = JSON.parse(text);
     data.log.entries.forEach((entry: IEntry) => {
       const { request } = entry;
-      const bodyMimeType = request.postData?.mimeType?.split(";")[0];
+      const bodyMimeType = request.postData?.mimeType?.split(';')[0];
       const url = this.options.resolveKey({
         method: request.method,
         url: request.url,
         headers: request.headers,
-        body: ["application/json"].includes(bodyMimeType ?? "")
+        body: ['application/json'].includes(bodyMimeType ?? '')
           ? request.postData!.text
           : null,
       });
@@ -124,18 +121,16 @@ export class HarReplayer {
     const url = this.options.resolveKey({
       method: request.method,
       url: request.url,
-      headers: Array.from(
-        request.headers.entries(),
-        ([name, value]) => ({ name, value }),
-      ),
+      headers: Array.from(request.headers.entries(), ([name, value]) => ({
+        name,
+        value,
+      })),
       body: request.body &&
-        new TextDecoder().decode(
-          await toArrayBuffer(request.body),
-        ),
+        new TextDecoder().decode(await toArrayBuffer(request.body)),
     });
     const entry = this.entryMap.get(`${request.method}:${url}`);
     let response: Response;
-    if (request.method === "OPTIONS") {
+    if (request.method === 'OPTIONS') {
       response = new Response();
     } else if (!entry) {
       response = await this.options.handle404(request);
@@ -147,7 +142,7 @@ export class HarReplayer {
       }, {} as Record<string, string>);
       response = new Response(body, { headers });
     }
-    response = await this.options.processResponse(response, request) ||
+    response = (await this.options.processResponse(response, request)) ||
       response;
     return response;
   };
@@ -155,11 +150,14 @@ export class HarReplayer {
   async start(options?: Deno.ServeOptions) {
     console.info(`Using HAR file at: ${this.harFile}`);
     await this.loading;
-    Deno.serve({
-      hostname: "[::]",
-      port: 3600,
-      ...options,
-    }, this.handleRequest);
+    Deno.serve(
+      {
+        hostname: '[::]',
+        port: 3600,
+        ...options,
+      },
+      this.handleRequest,
+    );
   }
 }
 

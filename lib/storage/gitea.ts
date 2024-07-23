@@ -1,6 +1,6 @@
-import { decodeBase64, encodeBase64 } from "../deps/deno.ts";
-import { ensureEnvs } from "../env.ts";
-import { IStorage } from "../types.ts";
+import { decodeBase64, encodeBase64 } from 'jsr:@std/encoding/base64';
+import { ensureEnvs } from '../env.ts';
+import { IStorage } from '../types.ts';
 
 export class GiteaStorage implements IStorage {
   constructor(
@@ -10,7 +10,7 @@ export class GiteaStorage implements IStorage {
   ) {}
 
   private async request<T>({
-    method = "GET",
+    method = 'GET',
     path,
   }: {
     method?: string;
@@ -21,11 +21,11 @@ export class GiteaStorage implements IStorage {
       {
         method,
         headers: {
-          Accept: "application/json",
+          Accept: 'application/json',
           Authorization: `token ${this.accessToken}`,
-          "Content-type": "application/json",
+          'Content-type': 'application/json',
         },
-        body: method === "GET" ? undefined : JSON.stringify(payload),
+        body: method === 'GET' ? undefined : JSON.stringify(payload),
       },
     );
     const data = await res.json() as T;
@@ -54,8 +54,8 @@ export class GiteaStorage implements IStorage {
       if (err?.status === 404 && silent) return;
       throw err;
     }
-    if (data.type !== "file") throw data;
-    const source = data.encoding === "base64"
+    if (data.type !== 'file') throw data;
+    const source = data.encoding === 'base64'
       ? new TextDecoder().decode(decodeBase64(data.content))
       : data.content;
     return { sha: data.sha, source };
@@ -78,7 +78,7 @@ export class GiteaStorage implements IStorage {
     path,
     sha,
     branch,
-    message = "update",
+    message = 'update',
     content,
   }: {
     path: string;
@@ -89,7 +89,7 @@ export class GiteaStorage implements IStorage {
     content: string;
   }) {
     const data = await this.request({
-      method: sha ? "PUT" : "POST",
+      method: sha ? 'PUT' : 'POST',
       path,
     }, {
       sha,
@@ -110,9 +110,9 @@ export class GiteaStorage implements IStorage {
     update: string | ((source: string) => string);
   }) {
     const data = await this.getInternalFile({ path, silent: true });
-    const content = typeof update === "string"
+    const content = typeof update === 'string'
       ? update
-      : update(data?.source || "");
+      : update(data?.source || '');
     return this.putFile({ path, branch, sha: data?.sha, content });
   }
 
@@ -133,7 +133,7 @@ export class GiteaStorage implements IStorage {
   }
 
   static loadFromEnv() {
-    const env = ensureEnvs(["GITEA_REPO", "GITEA_TOKEN", "GITEA_URL"]);
+    const env = ensureEnvs(['GITEA_REPO', 'GITEA_TOKEN', 'GITEA_URL']);
     return new GiteaStorage(env.GITEA_REPO, env.GITEA_TOKEN, env.GITEA_URL);
   }
 }

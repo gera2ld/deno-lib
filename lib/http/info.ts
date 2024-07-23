@@ -6,12 +6,12 @@ function handleRequest(request: Request) {
   };
   return new Response(JSON.stringify(output), {
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
 }
 
 Deno.serve({
-  hostname: "[::]",
+  hostname: '[::]',
   port: 8080,
 }, handleRequest);

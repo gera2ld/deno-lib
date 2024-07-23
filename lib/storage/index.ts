@@ -1,9 +1,9 @@
-import { GitHubStorage } from "./github.ts";
-import { GitHubGistStorage } from "./github-gist.ts";
-import { GitLabStorage } from "./gitlab.ts";
-import { GiteaStorage } from "./gitea.ts";
-import { APIStorage } from "./api.ts";
-import type { StorageConstructor } from "../types.ts";
+import { GitHubStorage } from './github.ts';
+import { GitHubGistStorage } from './github-gist.ts';
+import { GitLabStorage } from './gitlab.ts';
+import { GiteaStorage } from './gitea.ts';
+import { APIStorage } from './api.ts';
+import type { StorageConstructor } from '../types.ts';
 
 const gitServices = {
   github: GitHubStorage,
