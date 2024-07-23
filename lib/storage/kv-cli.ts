@@ -70,9 +70,7 @@ program
       prefix: key,
     });
     await Deno.writeTextFile(temp, value);
-    await runCommand(ensureEnv('EDITOR'), {
-      args: [temp],
-    }).spawn();
+    await runCommand([ensureEnv('EDITOR'), temp]).spawn();
     const newValue = await Deno.readTextFile(temp);
     kv.set(key, newValue);
     await Deno.remove(temp);

@@ -20,11 +20,11 @@ async function getCommandOutput(command: Deno.Command) {
   };
 }
 
-export function runCommand(
-  command: string | URL,
-  options: Deno.CommandOptions,
-) {
-  const cmd = new Deno.Command(command, options);
+export function runCommand(args: string[], options?: Deno.CommandOptions) {
+  const cmd = new Deno.Command(args[0], {
+    args: args.slice(1),
+    ...options,
+  });
   return {
     async output(ensureSuccess = true) {
       const output = await getCommandOutput(cmd);
