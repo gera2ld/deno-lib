@@ -33,4 +33,5 @@ async function handleRequest(request: Request) {
   }
 }
 
-Deno.serve(listenOptions, handleRequest);
+const server = Deno.serve(listenOptions, handleRequest);
+console.log(`Listening at ${server.addr.hostname}:${server.addr.port}`);
