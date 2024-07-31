@@ -1,4 +1,24 @@
-import { Database, DatabaseOpenOptions } from 'jsr:@db/sqlite@0.11';
+import { Database, DatabaseOpenOptions, Statement } from 'jsr:@db/sqlite@0.11';
+
+function normalizeParams(params: any[]) {
+  return params.map((param) => (param == null ? null : param));
+}
+
+class SqliteStatement<T> {
+  constructor(private statement: Statement) {}
+
+  get(...params: any[]) {
+    return this.statement.get(...normalizeParams(params)) as T | undefined;
+  }
+
+  all(...params: any[]) {
+    return this.statement.all(...normalizeParams(params)) as T[];
+  }
+
+  values(...params: any[]) {
+    return this.statement.values(...normalizeParams(params)) as any[][];
+  }
+}
 
 export class SqliteAdapter {
   private db: Database;
@@ -7,25 +27,27 @@ export class SqliteAdapter {
     this.db = new Database(path, options);
   }
 
-  private normalizeParams(params: any[]) {
-    return params.map((param) => (param == null ? null : param));
-  }
-
   exec(sql: string, ...params: any[]) {
-    this.db.run(sql, this.normalizeParams(params));
+    this.db.run(sql, normalizeParams(params));
   }
 
-  queryRow<T>(sql: string, ...params: any[]): T | undefined {
-    return this.db.prepare(sql).get(...this.normalizeParams(params)) as
-      | T
-      | undefined;
+  transaction(cb: () => void) {
+    this.db.transaction(cb)();
   }
 
-  queryRows<T>(sql: string, ...params: any[]): T[] {
-    return this.db.prepare(sql).all(...this.normalizeParams(params)) as T[];
+  prepare<T>(sql: string) {
+    return new SqliteStatement<T>(this.db.prepare(sql));
+  }
+
+  queryRow<T>(sql: string, ...params: any[]) {
+    return this.prepare<T>(sql).get(...params);
+  }
+
+  queryRows<T>(sql: string, ...params: any[]) {
+    return this.prepare<T>(sql).all(...params);
   }
 
   queryValues(sql: string, ...params: any[]) {
-    return this.db.prepare(sql).values(...this.normalizeParams(params));
+    return this.prepare(sql).values(...params);
   }
 }
